@@ -13,6 +13,8 @@ There are two options to install:
 - Download a pre-built binary from the Releases page, or
 - Simply git-clone the repo and build from source ([golang](https://golang.org) required)
 
+> Note: Though there are darwin binaries available, they are simply auto-built but untested. On Mac, you might be better off building your own.
+
 # Prerequisites
 
 The only real prerequisite is to have a public IP address for your server with an open port. Wireguard official documentation often uses 51820, but you can pick whatevs, of course.
