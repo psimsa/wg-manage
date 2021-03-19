@@ -1,3 +1,5 @@
+[![Go](https://github.com/ofcoursedude/wg-manage/actions/workflows/go.yml/badge.svg)](https://github.com/ofcoursedude/wg-manage/actions/workflows/go.yml)
+
 # wg-manage
 
 A command line tool to centrally manage [Wireguard](https://www.wireguard.com/) configuration files.
