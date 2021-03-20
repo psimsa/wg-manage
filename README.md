@@ -10,9 +10,10 @@ Wireguard is great, but managing it can be pain in the butt. I created this tool
 
 # Installation
 
-There are two options to install:
+There are three options to install:
 
-- Download a pre-built binary from the Releases page, or
+- Download a pre-built binary from the Releases page,
+- All commits to `main` are built with Github Actions and artifacts are published, so you can grab an executable for any build you see in the history, or
 - Simply git-clone the repo and build from source ([golang](https://golang.org) required)
 
 > Note: Though there are darwin binaries available, they are simply auto-built but untested. On Mac, you might be better off building your own.
