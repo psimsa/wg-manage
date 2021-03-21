@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-//HandleError is a shortcut for logging an error as "fatal" with a custom message.
+// HandleError is a shortcut for logging an error as "fatal" with a custom message.
 func HandleError(err error, message string) {
 	if err != nil {
 		log.Fatal(message, err)

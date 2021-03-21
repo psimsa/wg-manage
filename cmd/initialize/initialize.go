@@ -10,7 +10,17 @@ import (
 	"github.com/ofcoursedude/wg-manage/models"
 )
 
-func Run() {
+type Initialize struct{}
+
+func (i Initialize) ShortCommand() string {
+	return "i"
+}
+
+func (i Initialize) LongCommand() string {
+	return "initialize"
+}
+
+func (i Initialize) Run() {
 
 	cmd := flag.NewFlagSet("init", flag.ExitOnError)
 	peerCount := cmd.Int("peers", 2, "Peer count - typically at least 2")
@@ -47,7 +57,7 @@ func Run() {
 	models.SaveYaml(cfg, *configFile)
 }
 
-func PrintHelp() {
+func (i Initialize) PrintHelp() {
 	fmt.Println("[init | i] -clients {1} -servers {1} -output {config.yaml}")
 	fmt.Println("\tInitialize basic configuration with specified number of clients and servers")
 	fmt.Println("\tRequires further editing of the resulting yaml file with endpoint information.")

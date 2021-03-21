@@ -17,7 +17,17 @@ import (
 	"github.com/boombuler/barcode/qr"
 )
 
-func Run() {
+type Generate struct{}
+
+func (g Generate) ShortCommand() string {
+	return "g"
+}
+
+func (g Generate) LongCommand() string {
+	return "generate"
+}
+
+func (g Generate) Run() {
 	cmd := flag.NewFlagSet("generate", flag.ExitOnError)
 	configFile := cmd.String("config", "config.yaml", "Config file name")
 	png := cmd.Bool("png", true, "Whether to generate QR codes as well")
@@ -52,7 +62,7 @@ func Run() {
 	}
 
 }
-func PrintHelp() {
+func (g Generate) PrintHelp() {
 	fmt.Println("[generate | g] -output {./output} -png {true} -config {config.yaml}")
 	fmt.Println("\tGenerates config files from yaml file")
 	fmt.Println("\tExample: wg-manage g -config my-wireguard.yaml")

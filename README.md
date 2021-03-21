@@ -10,9 +10,10 @@ Wireguard is great, but managing it can be pain in the butt. I created this tool
 
 # Installation
 
-There are two options to install:
+There are three options to install:
 
-- Download a pre-built binary from the Releases page, or
+- Download a pre-built binary from the Releases page,
+- All commits to `main` are built with Github Actions and artifacts are published, so you can grab an executable for any build you see in the history, or
 - Simply git-clone the repo and build from source ([golang](https://golang.org) required)
 
 > Note: Though there are darwin binaries available, they are simply auto-built but untested. On Mac, you might be better off building your own.
@@ -20,8 +21,6 @@ There are two options to install:
 # Prerequisites
 
 The only real prerequisite is to have a public IP address for your server with an open port. Wireguard official documentation often uses 51820, but you can pick whatevs, of course.
-
-To run the tool, you also need to install Wireguard itself on the computer the tool will be ran as well as, obvously, on the client and server devices.
 
 Also, Wireguard or OS-specific topics are not in scope of this guide.
 
@@ -82,7 +81,7 @@ For example:
       - AllowedIPs=192.168.0.0/24
 ```
 
-will result in an extra line for peer with public key `im/jE5i7pvvODrlGbRaZT35C+NnrRfeFYR4IwAqNUkk=` in configuration file for `My Phone` which won't appear in other configuration files for this peer. So for `My Phone` the peer section will be:
+will result in an extra line for peer with public key `im/jE5i7pvvODrlGbRaZT35C+NnrRfeFYR4IwAqNUkk=` (assuming that's your Server) in configuration file for `My Phone` which won't appear in other configuration files for this peer. So for `My Phone` the peer section will be:
 
 ```
 [Peer]
