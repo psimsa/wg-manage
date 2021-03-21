@@ -18,6 +18,36 @@ steps:
     command: 'build'
     arguments: '-o windows/wg-manage.exe'
   env:
-    GOOS: Windows
+    GOOS: windows
   name: BuildWindows
   displayName: 'Build Windows'
+
+- task: Go@0
+  inputs:
+    command: 'build'
+    arguments: '-o linux-amd64/wg-manage'
+  env:
+    GOOS: linux
+    GOARCH: amd64
+  name: BuildLinuxAmd64
+  displayName: 'Build Linux amd64'
+  
+- task: Go@0
+  inputs:
+    command: 'build'
+    arguments: '-o linux-arm64/wg-manage'
+  env:
+    GOOS: linux
+    GOARCH: arm64
+  name: BuildLinuxArm64
+  displayName: 'Build Linux arm64'
+  
+- task: Go@0
+  inputs:
+    command: 'build'
+    arguments: '-o darwin/wg-manage'
+  env:
+    GOOS: darwin
+  name: BuildDarwin
+  displayName: 'Build Darwin'
+  
