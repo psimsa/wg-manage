@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/ofcoursedude/wg-manage/cmd/format"
 	"os"
 	"strings"
 
 	"github.com/ofcoursedude/wg-manage/cmd/add"
 	"github.com/ofcoursedude/wg-manage/cmd/bootstrap"
+	"github.com/ofcoursedude/wg-manage/cmd/format"
 	"github.com/ofcoursedude/wg-manage/cmd/generate"
 	"github.com/ofcoursedude/wg-manage/cmd/initialize"
+	"github.com/ofcoursedude/wg-manage/cmd/regenerate"
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 )
 
@@ -23,8 +24,9 @@ func main() {
 		initialize.Initialize{},
 		remove.Remove{},
 		format.Format{},
+		regenerate.Recreate{},
 	}
-	
+
 	if len(os.Args) < 2 {
 		printHelp()
 		os.Exit(0)
