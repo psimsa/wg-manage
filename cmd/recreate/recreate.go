@@ -1,18 +1,19 @@
-package regenerate
+package recreate
 
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/ofcoursedude/wg-manage/models"
 	"github.com/ofcoursedude/wg-manage/wg"
-	"os"
 )
 
 type Recreate struct {
 }
 
 func (r Recreate) PrintHelp() {
-	fmt.Println("[rc | recreate] -config {config.yaml}")
+	fmt.Println("[recreate | rc] -config {config.yaml}")
 	fmt.Println("\t(*DANGEROUS*) Recreates all private and public keys (*DANGEROUS*)")
 	fmt.Println("\t(outputs to stdout for safety reasons)")
 }
