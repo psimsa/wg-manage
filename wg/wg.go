@@ -1,40 +1,19 @@
 package wg
 
 import (
-	"github.com/ofcoursedude/wg-manage/oscustom"
-	"os/exec"
-	"strings"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 
 	"github.com/ofcoursedude/wg-manage/utils"
 )
 
 func GetKeyPair() (string, string) {
-	privCmd := exec.Command("wg", "genkey")
-	privCmd.Wait()
-	privOutput, err := privCmd.Output()
-	utils.HandleError(err, "Cannot generate private key")
 
-	privKey := strings.Trim(string(privOutput), oscustom.NewLine)
-
-	pubCmd := exec.Command("wg", "pubkey")
-	pubCmdStdInWriter, err := pubCmd.StdinPipe()
-	utils.HandleError(err, "Cannot write private key to stdin")
-
-	pubCmdStdInWriter.Write(privOutput)
-	pubCmdStdInWriter.Close()
-	pubCmd.Wait()
-	pubOutput, err := pubCmd.Output()
-	utils.HandleError(err, "Cannot generate public key")
-
-	pubKey := strings.Trim(string(pubOutput), oscustom.NewLine)
-	return privKey, pubKey
+	key, err := wgtypes.GeneratePrivateKey()
+	utils.HandleError(err, "cannot generate wireguard key")
+	return key.String(), key.PublicKey().String()
 }
-
 func GetPresharedKey() string {
-	preshCmd := exec.Command("wg", "genpsk")
-	preshCmd.Wait()
-	preshOutput, err := preshCmd.Output()
+	key, err := wgtypes.GenerateKey()
 	utils.HandleError(err, "Cannot generate preshared key")
-	preshKey := strings.Trim(string(preshOutput), oscustom.NewLine)
-	return preshKey
+	return key.String()
 }

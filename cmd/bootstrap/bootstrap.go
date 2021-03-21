@@ -9,7 +9,17 @@ import (
 	"github.com/ofcoursedude/wg-manage/wg"
 )
 
-func Run() {
+type Bootstrap struct{}
+
+func (b Bootstrap) ShortCommand() string {
+	return "b"
+}
+
+func (b Bootstrap) LongCommand() string {
+	return "bootstrap"
+}
+
+func (b Bootstrap) Run() {
 	cmd := flag.NewFlagSet("bootstrap", flag.ExitOnError)
 	endpoint := cmd.String("endpoint", "some.server.somewhere:51820", "The new wireguard server endpoint")
 	pkl := cmd.Bool("persistent", false, "Whether persistent keep alive should be set for one client")
@@ -65,7 +75,7 @@ func Run() {
 	models.SaveYaml(cfg, *configFile)
 
 }
-func PrintHelp() {
+func (b Bootstrap) PrintHelp() {
 	fmt.Println("[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent{false} -output {config.yaml}")
 	fmt.Println("\tCreates a simple, ready to run wireguard network configuration with one server and two clients, 'kill-switch' (all client traffic goes through wireguard, including external) and NAT.")
 	fmt.Println("\tAssumes 10.0.2.0/24 CIDR, wg0 and eth0 on server.")

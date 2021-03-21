@@ -47,6 +47,11 @@ func (p *Peer) GetPeer(w io.Writer, cfg *Configuration, parent *Peer) {
 }
 
 func SaveYaml(configuration Configuration, configFile string) {
+	data := GetYaml(configuration)
+	utils.SaveToFile(configFile, data)
+}
+
+func GetYaml(configuration Configuration) []byte {
 	sort.Slice(configuration.Peers, func(i, j int) bool {
 		if len(configuration.Peers[i].Address) == 0 {
 			return false
@@ -59,7 +64,7 @@ func SaveYaml(configuration Configuration, configFile string) {
 
 	data, err := yaml.Marshal(configuration)
 	utils.HandleError(err, "could not serialize to yaml")
-	utils.SaveToFile(configFile, data)
+	return data
 }
 
 func LoadYaml(configFile string) Configuration {

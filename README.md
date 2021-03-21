@@ -22,8 +22,6 @@ There are three options to install:
 
 The only real prerequisite is to have a public IP address for your server with an open port. Wireguard official documentation often uses 51820, but you can pick whatevs, of course.
 
-To run the tool, you also need to install Wireguard itself on the computer the tool will be ran as well as, obvously, on the client and server devices.
-
 Also, Wireguard or OS-specific topics are not in scope of this guide.
 
 # Quickstart
@@ -83,7 +81,7 @@ For example:
       - AllowedIPs=192.168.0.0/24
 ```
 
-will result in an extra line for peer with public key `im/jE5i7pvvODrlGbRaZT35C+NnrRfeFYR4IwAqNUkk=` in configuration file for `My Phone` which won't appear in other configuration files for this peer. So for `My Phone` the peer section will be:
+will result in an extra line for peer with public key `im/jE5i7pvvODrlGbRaZT35C+NnrRfeFYR4IwAqNUkk=` (assuming that's your Server) in configuration file for `My Phone` which won't appear in other configuration files for this peer. So for `My Phone` the peer section will be:
 
 ```
 [Peer]

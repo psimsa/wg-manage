@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/ofcoursedude/wg-manage/cmd/format"
 	"os"
+	"strings"
 
 	"github.com/ofcoursedude/wg-manage/cmd/add"
 	"github.com/ofcoursedude/wg-manage/cmd/bootstrap"
@@ -11,34 +13,35 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 )
 
+var availableCommands []Command
+
 func main() {
 
 	if len(os.Args) < 2 {
 		printHelp()
 		os.Exit(0)
 	}
-	switch os.Args[1] {
-	case "help", "h":
-		printHelp()
-		os.Exit(0)
-	case "init", "i":
-		initialize.Run()
-	case "add", "a":
-		add.Run()
-	case "remove", "r":
-		remove.Run()
-	case "generate", "g":
-		generate.Run()
-	case "bootstrap", "b":
-		bootstrap.Run()
+	availableCommands = []Command{
+		add.Add{},
+		bootstrap.Bootstrap{},
+		generate.Generate{},
+		initialize.Initialize{},
+		remove.Remove{},
+		format.Format{},
 	}
+	cmd := strings.ToLower(os.Args[1])
+	for _, command := range availableCommands {
+		if cmd == command.ShortCommand() || cmd == command.LongCommand() {
+			command.Run()
+			os.Exit(0)
+		}
+	}
+	printHelp()
 }
 
 func printHelp() {
 	fmt.Println("wg-manage is a command line tool to centrally organize your wireguard configuration.")
-	bootstrap.PrintHelp()
-	initialize.PrintHelp()
-	generate.PrintHelp()
-	add.PrintHelp()
-	remove.PrintHelp()
+	for _, command := range availableCommands {
+		command.PrintHelp()
+	}
 }

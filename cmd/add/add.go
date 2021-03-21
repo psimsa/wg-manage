@@ -9,7 +9,17 @@ import (
 	"github.com/ofcoursedude/wg-manage/wg"
 )
 
-func Run() {
+type Add struct{}
+
+func (a Add) ShortCommand() string {
+	return "a"
+}
+
+func (a Add) LongCommand() string {
+	return "add"
+}
+
+func (a Add) Run() {
 	cmd := flag.NewFlagSet("add", flag.ExitOnError)
 	name := cmd.String("name", "peer-1", "Name of the peer")
 	ip := cmd.String("ip", "", "IP address of the new peer")
@@ -17,6 +27,7 @@ func Run() {
 	configFile := cmd.String("config", "config.yaml", "Config file name")
 
 	cmd.Parse(os.Args[2:])
+
 	cfg := models.LoadYaml(*configFile)
 	peer := models.Peer{}
 	priv, pub := wg.GetKeyPair()
@@ -36,7 +47,8 @@ func Run() {
 
 	models.SaveYaml(cfg, *configFile)
 }
-func PrintHelp() {
+
+func (a Add) PrintHelp() {
 	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -config {config.yaml}")
 	fmt.Println("\tAdd a new record to the yaml file")
 	fmt.Println("\tExample: wg-manage a -name MyHomeComputer -ip 10.0.2.10")
