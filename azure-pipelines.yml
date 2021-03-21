@@ -13,10 +13,11 @@ steps:
 - task: GoTool@0
   inputs:
     version: '1.16'
+    
 - task: Go@0
   inputs:
     command: 'build'
-    arguments: '-o windows/wg-manage.exe'
+    arguments: '-o $(Pipeline.Workspace)/out/windows/wg-manage.exe'
   env:
     GOOS: windows
   name: BuildWindows
@@ -25,7 +26,7 @@ steps:
 - task: Go@0
   inputs:
     command: 'build'
-    arguments: '-o linux-amd64/wg-manage'
+    arguments: '-o $(Pipeline.Workspace)/out/linux-amd64/wg-manage'
   env:
     GOOS: linux
     GOARCH: amd64
@@ -35,7 +36,7 @@ steps:
 - task: Go@0
   inputs:
     command: 'build'
-    arguments: '-o linux-arm64/wg-manage'
+    arguments: '-o $(Pipeline.Workspace)/out/linux-arm64/wg-manage'
   env:
     GOOS: linux
     GOARCH: arm64
@@ -45,9 +46,35 @@ steps:
 - task: Go@0
   inputs:
     command: 'build'
-    arguments: '-o darwin/wg-manage'
+    arguments: '-o $(Pipeline.Workspace)/out/darwin/wg-manage'
   env:
     GOOS: darwin
   name: BuildDarwin
   displayName: 'Build Darwin'
+  
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/out/windows'
+    artifact: 'wg-manage-windows'
+    publishLocation: 'pipeline'
+
+  
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/out/linux-amd64'
+    artifact: 'wg-manage-linux-amd64'
+    publishLocation: 'pipeline'
+
+  
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/out/linux-arm64'
+    artifact: 'wg-manage-linux-arm64'
+    publishLocation: 'pipeline'
+  
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/out/darwin'
+    artifact: 'wg-manage-darwin'
+    publishLocation: 'pipeline'
   
