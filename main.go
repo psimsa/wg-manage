@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/ofcoursedude/wg-manage/cmd/format"
 	"os"
 	"strings"
+
+	"github.com/ofcoursedude/wg-manage/cmd/format"
 
 	"github.com/ofcoursedude/wg-manage/cmd/add"
 	"github.com/ofcoursedude/wg-manage/cmd/bootstrap"
@@ -16,11 +17,6 @@ import (
 var availableCommands []Command
 
 func main() {
-
-	if len(os.Args) < 2 {
-		printHelp()
-		os.Exit(0)
-	}
 	availableCommands = []Command{
 		add.Add{},
 		bootstrap.Bootstrap{},
@@ -29,6 +25,12 @@ func main() {
 		remove.Remove{},
 		format.Format{},
 	}
+
+	if len(os.Args) < 2 {
+		printHelp()
+		os.Exit(0)
+	}
+
 	cmd := strings.ToLower(os.Args[1])
 	for _, command := range availableCommands {
 		if cmd == command.ShortCommand() || cmd == command.LongCommand() {

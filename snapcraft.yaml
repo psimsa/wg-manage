@@ -19,3 +19,5 @@ parts:
 apps:
   wg-manage:
     command: bin/wg-manage
+    plugs:
+     - home
