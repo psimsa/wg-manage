@@ -10,11 +10,15 @@ Wireguard is great, but managing it can be pain in the butt. I created this tool
 
 # Installation
 
-There are three options to install:
+There are a few options to install:
 
 - Download a pre-built binary from the Releases page,
 - All commits to `main` are built with Github Actions and artifacts are published, so you can grab an executable for any build you see in the history, or
 - Simply git-clone the repo and build from source ([golang](https://golang.org) required)
+
+and, newly
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/wg-manage)
 
 > Note: Though there are darwin binaries available, they are simply auto-built but untested. On Mac, you might be better off building your own.
 
