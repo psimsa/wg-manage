@@ -25,6 +25,7 @@ func (a Add) Run() {
 	ip := cmd.String("ip", "", "IP address of the new peer")
 	endpoint := cmd.String("endpoint", "", "Endpoint, can be empty")
 	configFile := cmd.String("config", "config.yaml", "Config file name")
+	pkl := cmd.Bool("persistent", false, "Whether persistent keep alive should be set for one client")
 
 	cmd.Parse(os.Args[2:])
 
@@ -42,6 +43,10 @@ func (a Add) Run() {
 	if *endpoint != "" {
 		peer.Endpoint = endpoint
 	}
+	if *pkl == true {
+		peer.PersistentKeepalive = new(int)
+		*peer.PersistentKeepalive = 21
+	}
 
 	cfg.Peers = append(cfg.Peers, peer)
 
@@ -49,7 +54,7 @@ func (a Add) Run() {
 }
 
 func (a Add) PrintHelp() {
-	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -config {config.yaml}")
+	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -persistent {false} -config {config.yaml}")
 	fmt.Println("\tAdd a new record to the yaml file")
 	fmt.Println("\tExample: wg-manage a -name MyHomeComputer -ip 10.0.2.10")
 }

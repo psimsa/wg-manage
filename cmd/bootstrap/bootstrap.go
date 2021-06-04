@@ -76,7 +76,7 @@ func (b Bootstrap) Run() {
 
 }
 func (b Bootstrap) PrintHelp() {
-	fmt.Println("[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent{false} -output {config.yaml}")
+	fmt.Println("[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent {false} -output {config.yaml}")
 	fmt.Println("\tCreates a simple, ready to run wireguard network configuration with one server and two clients, 'kill-switch' (all client traffic goes through wireguard, including external) and NAT.")
 	fmt.Println("\tAssumes 10.0.2.0/24 CIDR, wg0 and eth0 on server.")
 	fmt.Println("\tExample: wg-manage b -endpoint myhome.someddnsprovider.com")
