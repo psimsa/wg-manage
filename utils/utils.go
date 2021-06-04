@@ -36,6 +36,7 @@ func WriteItemsIfAny(slice []string, key string, w *io.Writer) {
 		}
 	}
 }
+
 func WriteItemIfAny(item interface{}, key string, w *io.Writer) {
 
 	if item != nil {

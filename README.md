@@ -1,8 +1,9 @@
 [![Go](https://github.com/ofcoursedude/wg-manage/actions/workflows/go.yml/badge.svg)](https://github.com/ofcoursedude/wg-manage/actions/workflows/go.yml)
+[![wg-manage on snapcraft](https://snapcraft.io/wg-manage/badge.svg)](https://snapcraft.io/wg-manage)
 
 # wg-manage
 
-A command line tool to centrally manage [Wireguard](https://www.wireguard.com/) configuration files.
+A command line tool to centrally manage [Wireguard](https://www.wireguard.com/) configuration files - all config options are stored in one YAML file that is then used to generate the config files for each device. It supports all options found in wg config files including wg-quick extensions (e.g. Address, Post/Pre-Up/Down etc.). It also has a quickstart option that bootstraps configs for ready to run network (one server, two clients).
 
 # Motivation
 
@@ -64,6 +65,14 @@ After adding or removing a computer, it is necessary to run the `generate` comma
 ### `init`
 
 Running this command will create a config file with all available options populated with dummy data. It can be helpful if you want to explore what options you have available.
+
+### `format`
+
+Reformats the input config yaml file and outputs to stdout.
+
+### `recreate`
+
+This command recreates all keys (private and public) in the yaml file. For safety reasons outputs to stdout.
 
 ---
 
