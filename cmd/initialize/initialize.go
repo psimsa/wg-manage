@@ -17,7 +17,7 @@ func (i Initialize) ShortCommand() string {
 }
 
 func (i Initialize) LongCommand() string {
-	return "initialize"
+	return "init"
 }
 
 func (i Initialize) Run() {
