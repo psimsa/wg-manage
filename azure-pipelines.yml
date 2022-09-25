@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: GoTool@0
+- task: GoTool@0.207.0
   inputs:
     version: '1.16'
     
