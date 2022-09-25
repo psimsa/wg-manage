@@ -14,7 +14,7 @@ steps:
   inputs:
     version: '1.16'
     
-- task: Go@0
+- task: Go@0.210.0
   inputs:
     command: 'build'
     arguments: '-o $(Pipeline.Workspace)/out/windows/wg-manage.exe'
@@ -23,7 +23,7 @@ steps:
   name: BuildWindows
   displayName: 'Build Windows'
 
-- task: Go@0
+- task: Go@0.210.0
   inputs:
     command: 'build'
     arguments: '-o $(Pipeline.Workspace)/out/linux-amd64/wg-manage'
@@ -33,7 +33,7 @@ steps:
   name: BuildLinuxAmd64
   displayName: 'Build Linux amd64'
   
-- task: Go@0
+- task: Go@0.210.0
   inputs:
     command: 'build'
     arguments: '-o $(Pipeline.Workspace)/out/linux-arm64/wg-manage'
@@ -43,7 +43,7 @@ steps:
   name: BuildLinuxArm64
   displayName: 'Build Linux arm64'
   
-- task: Go@0
+- task: Go@0.210.0
   inputs:
     command: 'build'
     arguments: '-o $(Pipeline.Workspace)/out/darwin/wg-manage'
