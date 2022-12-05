@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/ofcoursedude/wg-manage/models"
 	"github.com/ofcoursedude/wg-manage/wg"
@@ -26,6 +28,7 @@ func (a Add) Run() {
 	endpoint := cmd.String("endpoint", "", "Endpoint, can be empty")
 	configFile := cmd.String("config", "config.yaml", "Config file name")
 	pkl := cmd.Bool("persistent", false, "Whether persistent keep alive should be set for one client")
+	ar := cmd.String("add-routing", "", "Whether to add routing for the new peer")
 
 	cmd.Parse(os.Args[2:])
 
@@ -42,10 +45,34 @@ func (a Add) Run() {
 	peer.AllowedIps = peer.Address
 	if *endpoint != "" {
 		peer.Endpoint = endpoint
+		listenPort := strings.Split(*endpoint, ":")[1]
+		intVar, err := strconv.Atoi(listenPort)
+		if err != nil {
+			fmt.Println("Error parsing listen port")
+			os.Exit(1)
+		}
+		fmt.Println(peer.Endpoint)
+		peer.ListenPort = &intVar
 	}
-	if *pkl == true {
+	if *pkl {
 		peer.PersistentKeepalive = new(int)
 		*peer.PersistentKeepalive = 21
+	}
+	if *ar != "" {
+		peer.PostUp = append(peer.PostUp,
+			"sysctl -q -w net.ipv4.ip_forward=1",
+			"iptables -A FORWARD -i wg0 -j ACCEPT",
+			"iptables -A FORWARD -o wg0 -j ACCEPT",
+			"iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE",
+			fmt.Sprintf("iptables -t nat -A POSTROUTING -o %s -j MASQUERADE", *ar),
+		)
+		peer.PostDown = append(peer.PostDown,
+			"sysctl -q -w net.ipv4.ip_forward=0",
+			"iptables -D FORWARD -i wg0 -j ACCEPT",
+			"iptables -D FORWARD -o wg0 -j ACCEPT",
+			"iptables -t nat -D POSTROUTING -o wg0 -j MASQUERADE",
+			fmt.Sprintf("iptables -t nat -D POSTROUTING -o %s -j MASQUERADE", *ar),
+		)
 	}
 
 	cfg.Peers = append(cfg.Peers, peer)
@@ -54,7 +81,7 @@ func (a Add) Run() {
 }
 
 func (a Add) PrintHelp() {
-	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -persistent {false} -config {config.yaml}")
+	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -persistent {false} -add-routing {false} -config {config.yaml}")
 	fmt.Println("\tAdd a new record to the yaml file")
 	fmt.Println("\tExample: wg-manage a -name MyHomeComputer -ip 10.0.2.10")
 }
