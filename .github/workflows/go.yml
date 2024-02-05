@@ -37,28 +37,28 @@ jobs:
         run: go build -v -o out/darwin/wg-manage .
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: wg-manage-linux-amd64
           # A file, directory or wildcard pattern that describes what to upload
           path: out/linux-amd64/*
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: wg-manage-linux-arm64
           # A file, directory or wildcard pattern that describes what to upload
           path: out/linux-arm64/*
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: wg-manage-darwin
           # A file, directory or wildcard pattern that describes what to upload
           path: out/darwin/*
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: wg-manage-windows
           # A file, directory or wildcard pattern that describes what to upload
