@@ -4,6 +4,6 @@ go 1.16
 
 require (
 	github.com/boombuler/barcode v1.0.1
-	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20220504211119-3d4a969bb56b
+	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20241231184526-a9ab2273dd10
 	gopkg.in/yaml.v2 v2.4.0
 )
