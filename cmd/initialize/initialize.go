@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ofcoursedude/wg-manage/wg"
-
 	"github.com/ofcoursedude/wg-manage/models"
+	"github.com/ofcoursedude/wg-manage/wg"
 )
 
 type Initialize struct{}
@@ -21,8 +20,8 @@ func (i Initialize) LongCommand() string {
 }
 
 func (i Initialize) Run() {
-
 	cmd := flag.NewFlagSet("init", flag.ExitOnError)
+
 	peerCount := cmd.Int("peers", 2, "Peer count - typically at least 2")
 	configFile := cmd.String("output", "config.yaml", "Output file name")
 	simple := cmd.Bool("simple", false, "Whether to create only basic structure")
@@ -54,7 +53,11 @@ func (i Initialize) Run() {
 		cfg.Peers[i] = peer
 	}
 
-	models.SaveYaml(cfg, *configFile)
+	if err := models.SaveYaml(cfg, *configFile); err != nil {
+		fmt.Printf("could not write config: %v\n", err)
+		os.Exit(1)
+	}
+
 }
 
 func (i Initialize) PrintHelp() {
