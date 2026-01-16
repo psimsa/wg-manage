@@ -42,7 +42,6 @@ func (r Remove) Run() {
 			os.Exit(1)
 		}
 	} else {
-
 		fmt.Println("No match found.")
 	}
 }

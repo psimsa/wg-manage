@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/ofcoursedude/wg-manage/internal/cli"
+	wgmanage "github.com/ofcoursedude/wg-manage"
 )
 
 func main() {
-	os.Exit(cli.Run(os.Args[1:]))
+	os.Exit(wgmanage.Run(os.Args[1:]))
 }
