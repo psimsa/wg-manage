@@ -1,19 +1,23 @@
 package wg
 
 import (
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+	"fmt"
 
-	"github.com/ofcoursedude/wg-manage/utils"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 func GetKeyPair() (string, string) {
-
 	key, err := wgtypes.GeneratePrivateKey()
-	utils.HandleError(err, "cannot generate wireguard key")
+	if err != nil {
+		panic(fmt.Errorf("cannot generate wireguard key: %w", err))
+	}
 	return key.String(), key.PublicKey().String()
 }
+
 func GetPresharedKey() string {
 	key, err := wgtypes.GenerateKey()
-	utils.HandleError(err, "Cannot generate preshared key")
+	if err != nil {
+		panic(fmt.Errorf("cannot generate preshared key: %w", err))
+	}
 	return key.String()
 }

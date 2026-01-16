@@ -37,8 +37,12 @@ func (r Remove) Run() {
 	}
 	if len(cfg.Peers) != len(newPeers) {
 		cfg.Peers = newPeers
-		models.SaveYaml(cfg, *configFile)
+		if err := models.SaveYaml(cfg, *configFile); err != nil {
+			fmt.Printf("could not write config: %v\n", err)
+			os.Exit(1)
+		}
 	} else {
+
 		fmt.Println("No match found.")
 	}
 }
