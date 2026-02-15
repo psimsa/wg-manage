@@ -58,7 +58,7 @@ func (b Bootstrap) Run() {
 	pc.Address[0] = "10.0.2.2/32"
 	pc.AllowedIps = make([]string, 1)
 	pc.AllowedIps[0] = "10.0.2.2/32"
-	if *pkl == true {
+	if *pkl {
 		pc.PersistentKeepalive = new(int)
 		*pc.PersistentKeepalive = 21
 	}
@@ -72,7 +72,10 @@ func (b Bootstrap) Run() {
 	phone.AllowedIps[0] = "10.0.2.3/32"
 	cfg.Peers[2] = *phone
 
-	models.SaveYaml(cfg, *configFile)
+	if err := models.SaveYaml(cfg, *configFile); err != nil {
+		fmt.Printf("could not write config: %v\n", err)
+		os.Exit(1)
+	}
 
 }
 func (b Bootstrap) PrintHelp() {

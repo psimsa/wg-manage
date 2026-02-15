@@ -1,4 +1,4 @@
-package main
+package wgmanage
 
 type Command interface {
 	PrintHelp()

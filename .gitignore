@@ -11,8 +11,8 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-wg-manage
-wg-manage.exe
+/wg-manage
+/wg-manage.exe
 output/
 *.yaml
 
