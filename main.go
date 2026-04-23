@@ -1,8 +1,7 @@
-package main
+package wgmanage
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ofcoursedude/wg-manage/cmd/add"
@@ -14,10 +13,8 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 )
 
-var availableCommands []Command
-
-func main() {
-	availableCommands = []Command{
+func AvailableCommands() []Command {
+	return []Command{
 		add.Add{},
 		bootstrap.Bootstrap{},
 		generate.Generate{},
@@ -26,25 +23,29 @@ func main() {
 		format.Format{},
 		recreate.Recreate{},
 	}
-
-	if len(os.Args) < 2 {
-		printHelp()
-		os.Exit(0)
-	}
-
-	cmd := strings.ToLower(os.Args[1])
-	for _, command := range availableCommands {
-		if cmd == command.ShortCommand() || cmd == command.LongCommand() {
-			command.Run()
-			os.Exit(0)
-		}
-	}
-	printHelp()
 }
 
-func printHelp() {
+func Run(args []string) int {
+	commands := AvailableCommands()
+	if len(args) == 0 {
+		printHelp(commands)
+		return 0
+	}
+
+	cmd := strings.ToLower(args[0])
+	for _, command := range commands {
+		if cmd == command.ShortCommand() || cmd == command.LongCommand() {
+			command.Run()
+			return 0
+		}
+	}
+	printHelp(commands)
+	return 1
+}
+
+func printHelp(commands []Command) {
 	fmt.Println("wg-manage is a command line tool to centrally organize your wireguard configuration.")
-	for _, command := range availableCommands {
+	for _, command := range commands {
 		command.PrintHelp()
 	}
 }
