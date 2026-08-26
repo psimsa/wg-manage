@@ -4,17 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 
-	"github.com/ofcoursedude/wg-manage/utils"
-
-	"github.com/ofcoursedude/wg-manage/models"
-
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+
+	"github.com/ofcoursedude/wg-manage/models"
 )
 
 type Generate struct{}
@@ -36,17 +33,23 @@ func (g Generate) Run() {
 	cmd.Parse(os.Args[2:])
 
 	cfg := models.LoadYaml(*configFile)
-	path, err := filepath.Abs(*outputDir)
-	utils.HandleError(err, "error determining output path")
-	_, err = os.Stat(path)
+	outputPath, err := filepath.Abs(*outputDir)
 	if err != nil {
-		os.MkdirAll(path, 2147484141)
+		fmt.Printf("error determining output path: %v\n", err)
+		os.Exit(1)
+	}
+	if err := os.MkdirAll(outputPath, 0o755); err != nil {
+		fmt.Printf("could not create output directory: %v\n", err)
+		os.Exit(1)
 	}
 
 	for _, peer := range cfg.Peers {
-		filename := fmt.Sprintf("%s/%s.conf", path, peer.Name)
+		filename := filepath.Join(outputPath, fmt.Sprintf("%s.conf", peer.Name))
 		file, err := os.Create(filename)
-		utils.HandleError(err, "can not create file")
+		if err != nil {
+			fmt.Printf("can not create file: %v\n", err)
+			os.Exit(1)
+		}
 
 		peer.GetInterface(file)
 		for _, peer2 := range cfg.Peers {
@@ -55,9 +58,15 @@ func (g Generate) Run() {
 			}
 			peer2.GetPeer(file, &cfg, &peer)
 		}
-		file.Close()
-		if *png == true {
-			getQrCode(filename)
+		if err := file.Close(); err != nil {
+			fmt.Printf("could not close file: %v\n", err)
+			os.Exit(1)
+		}
+		if *png {
+			if err := getQrCode(filename); err != nil {
+				fmt.Printf("could not generate qr code: %v\n", err)
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -68,21 +77,32 @@ func (g Generate) PrintHelp() {
 	fmt.Println("\tExample: wg-manage g -config my-wireguard.yaml")
 }
 
-func getQrCode(file string) {
-	content, err := ioutil.ReadFile(file)
-	utils.HandleError(err, "Can not open file")
+func getQrCode(file string) error {
+	content, err := os.ReadFile(file)
+	if err != nil {
+		return err
+	}
 	qrCode, err := qr.Encode(string(content), qr.M, qr.Auto)
-	utils.HandleError(err, "can not generate qr code")
+	if err != nil {
+		return err
+	}
 
-	// Scale the barcode to 200x200 pixels
-	qrCode, _ = barcode.Scale(qrCode, 200, 200)
+	qrCode, err = barcode.Scale(qrCode, 200, 200)
+	if err != nil {
+		return err
+	}
 	ext := path.Ext(file)
 	pngFileName := file[0:len(file)-len(ext)] + ".png"
 
-	// create the output file
-	pngFile, _ := os.Create(pngFileName)
+	pngFile, err := os.Create(pngFileName)
+	if err != nil {
+		return err
+	}
 	defer pngFile.Close()
 
-	// encode the barcode as png
-	png.Encode(pngFile, qrCode)
+	if err := png.Encode(pngFile, qrCode); err != nil {
+		return err
+	}
+
+	return nil
 }

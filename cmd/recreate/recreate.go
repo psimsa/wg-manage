@@ -10,8 +10,7 @@ import (
 	"github.com/ofcoursedude/wg-manage/wg"
 )
 
-type Recreate struct {
-}
+type Recreate struct{}
 
 func (r Recreate) PrintHelp() {
 	fmt.Println("[recreate | rc] -config {config.yaml}")
@@ -42,7 +41,13 @@ func (r Recreate) Run() {
 		cfg.Peers[i].PublicKey = pub
 	}
 
-	formatted := string(models.GetYaml(cfg))
+	formattedBytes, err := models.GetYaml(cfg)
+	if err != nil {
+		fmt.Printf("could not format config: %v\n", err)
+		os.Exit(1)
+	}
+	formatted := string(formattedBytes)
+
 	for _, pair := range oldnew {
 		formatted = strings.ReplaceAll(formatted, pair.old, pair.new)
 	}

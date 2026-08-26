@@ -3,9 +3,8 @@ package add
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/ofcoursedude/wg-manage/models"
 	"github.com/ofcoursedude/wg-manage/wg"
@@ -45,14 +44,21 @@ func (a Add) Run() {
 	peer.AllowedIps = peer.Address
 	if *endpoint != "" {
 		peer.Endpoint = endpoint
-		listenPort := strings.Split(*endpoint, ":")[1]
-		intVar, err := strconv.Atoi(listenPort)
+		_, port, err := net.SplitHostPort(*endpoint)
 		if err != nil {
-			fmt.Println("Error parsing listen port")
+			fmt.Printf("invalid endpoint %q: %v\n", *endpoint, err)
 			os.Exit(1)
 		}
-		fmt.Println(peer.Endpoint)
-		peer.ListenPort = &intVar
+		listenPort, err := net.LookupPort("udp", port)
+		if err != nil {
+			fmt.Printf("invalid endpoint port %q: %v\n", port, err)
+			os.Exit(1)
+		}
+		if listenPort <= 0 {
+			fmt.Printf("invalid endpoint port %q\n", port)
+			os.Exit(1)
+		}
+		peer.ListenPort = &listenPort
 	}
 	if *pkl {
 		peer.PersistentKeepalive = new(int)
@@ -77,7 +83,11 @@ func (a Add) Run() {
 
 	cfg.Peers = append(cfg.Peers, peer)
 
-	models.SaveYaml(cfg, *configFile)
+	if err := models.SaveYaml(cfg, *configFile); err != nil {
+		fmt.Printf("could not write config: %v\n", err)
+		os.Exit(1)
+	}
+
 }
 
 func (a Add) PrintHelp() {
