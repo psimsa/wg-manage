@@ -1,5 +1,10 @@
 name: Web (wasm/PWA)
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 on:
   push:
     paths:
@@ -66,3 +71,29 @@ jobs:
         with:
           name: wg-manage-web
           path: web/dist/*
+
+  deploy-pages:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download PWA artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: wg-manage-web
+          path: web/dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
