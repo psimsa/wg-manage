@@ -324,6 +324,86 @@ func TestAcceptancePoolCommand(t *testing.T) {
 	assertGolden(t, "pool_output.txt.golden", out)
 }
 
+func TestAcceptanceBootstrapPortAndPreshared(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com", "-port", "443", "-preshared", "per-peer")
+	data := readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "endpoint: vpn.example.com:443") {
+		t.Errorf("endpoint should gain port 443:\n%s", data)
+	}
+	if !strings.Contains(data, "listenPort: 443") {
+		t.Errorf("server should have listenPort 443:\n%s", data)
+	}
+	pskCount := strings.Count(data, "presharedKey:")
+	if pskCount != 3 {
+		t.Errorf("per-peer mode should write 3 presharedKey entries, got %d:\n%s", pskCount, data)
+	}
+	if regexp.MustCompile(`(?m)^presharedKey:`).MatchString(data) {
+		t.Errorf("per-peer mode must not set a top-level global key:\n%s", data)
+	}
+
+	run(t, dir, "generate", "-output", "./out", "-png=false")
+	serverConf := readFile(t, filepath.Join(dir, "out", "Server.conf"))
+	if !strings.Contains(serverConf, "ListenPort=443") {
+		t.Errorf("generated server conf should contain ListenPort=443:\n%s", serverConf)
+	}
+	if !strings.Contains(serverConf, "PresharedKey=") {
+		t.Errorf("generated conf should contain per-peer PresharedKey:\n%s", serverConf)
+	}
+
+	dir2 := t.TempDir()
+	run(t, dir2, "bootstrap", "-endpoint", "vpn.example.com:51820", "-preshared", "single")
+	data2 := readFile(t, filepath.Join(dir2, "config.yaml"))
+	if !regexp.MustCompile(`(?m)^presharedKey:`).MatchString(data2) || strings.Contains(data2, "    presharedKey:") {
+		t.Errorf("single mode should set exactly one top-level global key:\n%s", data2)
+	}
+}
+
+func TestAcceptancePskCommand(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+
+	out := run(t, dir, "psk", "-mode", "status")
+	if !strings.Contains(out, "global preshared key: false") || !strings.Contains(out, "none") {
+		t.Errorf("status without psk:\n%s", out)
+	}
+
+	run(t, dir, "psk", "-mode", "per-peer")
+	data := readFile(t, filepath.Join(dir, "config.yaml"))
+	if strings.Count(data, "presharedKey:") != 3 {
+		t.Errorf("per-peer should create 3 keys:\n%s", data)
+	}
+	out = run(t, dir, "psk", "-mode", "status")
+	if strings.Count(out, "own per-peer key") != 3 {
+		t.Errorf("status should show 3 own keys:\n%s", out)
+	}
+
+	run(t, dir, "psk", "-mode", "single")
+	data = readFile(t, filepath.Join(dir, "config.yaml"))
+	if strings.Count(data, "presharedKey:") != 1 || strings.Contains(data, "    presharedKey:") {
+		t.Errorf("single should leave one global key only:\n%s", data)
+	}
+
+	run(t, dir, "psk", "-mode", "remove")
+	data = readFile(t, filepath.Join(dir, "config.yaml"))
+	if strings.Contains(data, "presharedKey") {
+		t.Errorf("remove should clear all keys:\n%s", data)
+	}
+}
+
+func TestAcceptanceAddServerWithPort(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	run(t, dir, "add", "-server", "-endpoint", "vpn2.example.com:443", "-port", "8443", "-name", "Srv2")
+	data := readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "listenPort: 8443") {
+		t.Errorf("-port should win over endpoint port:\n%s", data)
+	}
+	if !strings.Contains(data, "endpoint: vpn2.example.com:443") {
+		t.Errorf("endpoint should keep its own port:\n%s", data)
+	}
+}
+
 func TestAcceptanceGenerateCustomOutput(t *testing.T) {
 	dir := t.TempDir()
 	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")

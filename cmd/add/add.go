@@ -27,6 +27,7 @@ func (a Add) Run() {
 	ip := cmd.String("ip", "", "IP address of the new peer (auto-allocated from the pool when omitted and settings.ipPool is set)")
 	endpoint := cmd.String("endpoint", "", "Endpoint, can be empty")
 	server := cmd.Bool("server", false, "Whether the new peer is a server (address allocated from the servers subnet)")
+	port := cmd.Int("port", 0, "Listen port for a server peer (overrides endpoint port and settings default)")
 	configFile := cmd.String("config", "config.yaml", "Config file name")
 	pkl := cmd.Bool("persistent", false, "Whether persistent keep alive should be set for one client")
 	ar := cmd.String("add-routing", "", "Whether to add routing for the new peer")
@@ -75,6 +76,13 @@ func (a Add) Run() {
 			}
 			peer.ListenPort = &intVar
 		}
+	}
+	if *port != 0 {
+		if *port < 1 || *port > 65535 {
+			fmt.Println("Error: -port must be between 1 and 65535")
+			os.Exit(1)
+		}
+		peer.ListenPort = port
 	}
 	if *pkl {
 		peer.PersistentKeepalive = new(int)

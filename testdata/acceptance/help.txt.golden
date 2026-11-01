@@ -2,7 +2,7 @@ wg-manage is a command line tool to centrally organize your wireguard configurat
 [add | a] -name {peer-1} [-ip {} | auto] [-server -endpoint {}] -persistent {false} -add-routing {false} -force {false} -config {config.yaml}
 	Add a new record to the yaml file; without -ip the address is auto-allocated from settings.ipPool
 	Example: wg-manage a -name MyHomeComputer (auto IP) or wg-manage a -name MyHomeComputer -ip 10.0.2.10
-[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent {false} -output {config.yaml}
+[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent {false} -port {0=auto} -preshared {none|single|per-peer} -output {config.yaml}
 	Creates a simple, ready to run wireguard network configuration with one server and two clients, 'kill-switch' (all client traffic goes through wireguard, including external) and NAT.
 	Assumes 10.0.2.0/24 CIDR, wg0 and eth0 on server.
 	Example: wg-manage b -endpoint myhome.someddnsprovider.com
@@ -24,3 +24,6 @@ wg-manage is a command line tool to centrally organize your wireguard configurat
 [pool | p] -config {config.yaml}
 	Shows the IP pool, subnets, used addresses (with owning peer) and free addresses
 	Example: wg-manage p
+[psk] [-mode {status|single|per-peer|remove}] -config {config.yaml}
+	Manage preshared keys: status (default), single global key, unique per-peer keys, or remove all
+	Example: wg-manage psk -mode per-peer

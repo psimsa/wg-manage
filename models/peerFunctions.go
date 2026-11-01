@@ -32,7 +32,11 @@ func (p *Peer) GetPeer(w io.Writer, cfg *Configuration, parent *Peer) {
 	fmt.Fprintf(w, "# %s", p.Name)
 	fmt.Fprintln(w, "")
 	utils.WriteItemIfAny(p.PublicKey, "PublicKey", &w)
-	utils.WriteItemIfAny(cfg.PresharedKey, "PresharedKey", &w)
+	if p.PresharedKey != nil {
+		utils.WriteItemIfAny(*p.PresharedKey, "PresharedKey", &w)
+	} else {
+		utils.WriteItemIfAny(cfg.PresharedKey, "PresharedKey", &w)
+	}
 	utils.WriteItemsIfAny(p.PeerSection.AllowedIps, "AllowedIPs", &w)
 	utils.WriteItemIfAny(p.PeerSection.Endpoint, "Endpoint", &w)
 	utils.WriteItemIfAny(parent.PeerSection.PersistentKeepalive, "PersistentKeepalive", &w)

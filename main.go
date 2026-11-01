@@ -11,6 +11,7 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/generate"
 	"github.com/ofcoursedude/wg-manage/cmd/initialize"
 	"github.com/ofcoursedude/wg-manage/cmd/pool"
+	"github.com/ofcoursedude/wg-manage/cmd/psk"
 	"github.com/ofcoursedude/wg-manage/cmd/recreate"
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 )
@@ -27,6 +28,7 @@ func main() {
 		format.Format{},
 		recreate.Recreate{},
 		pool.Pool{},
+		psk.Psk{},
 	}
 
 	if len(os.Args) < 2 {

@@ -110,6 +110,18 @@ Reformats the input config yaml file and outputs to stdout.
 
 This command recreates all keys (private and public) in the yaml file. For safety reasons outputs to stdout.
 
+### `pool`
+
+Shows the configured IP pool, subnets, which addresses are used by which peer, and how many are free. Addresses are allocated automatically when `settings.ipPool` is set (see above), so `wg-manage add -name X` needs no `-ip`.
+
+### `psk`
+
+Manages preshared keys: `wg-manage psk -mode status` (default) shows the current state, `-mode single` sets one global `presharedKey`, `-mode per-peer` gives every peer its own `presharedKey` under `peerSection`, `-mode remove` clears all. `bootstrap -preshared single|per-peer` and `init -preshared none|single|per-peer` do the same at creation time. A peer-level key overrides the global one in generated `[Peer]` blocks.
+
+### Server listen port
+
+Servers get `ListenPort` automatically: `bootstrap -port 443` (also rewrites the endpoint port), `add -server -endpoint host:port` (port taken from the endpoint), or `settings.serverDefaults.listenPort`. An explicit `add -port` wins over both.
+
 ---
 
 # Other information

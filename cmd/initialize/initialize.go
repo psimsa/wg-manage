@@ -26,7 +26,7 @@ func (i Initialize) Run() {
 	peerCount := cmd.Int("peers", 2, "Peer count - typically at least 2")
 	configFile := cmd.String("output", "config.yaml", "Output file name")
 	simple := cmd.Bool("simple", false, "Whether to create only basic structure")
-	preshared := cmd.Bool("preshared", true, "Whether to create preshared key")
+	preshared := cmd.String("preshared", "single", "Preshared key mode: none, single (one global key), per-peer (unique key per peer)")
 	settings := cmd.Bool("settings", true, "Whether to include the default settings section (ip pool, defaults)")
 
 	cmd.Parse(os.Args[2:])
@@ -37,9 +37,15 @@ func (i Initialize) Run() {
 	if *settings {
 		cfg.Settings = models.DefaultSettings()
 	}
-	if *preshared {
+	switch *preshared {
+	case "none", "false":
+	case "single", "true":
 		presharedKey := wg.GetPresharedKey()
 		cfg.PresharedKey = &presharedKey
+	case "per-peer":
+	default:
+		fmt.Println("Error: -preshared must be one of: none, single, per-peer")
+		os.Exit(1)
 	}
 
 	for i := range cfg.Peers {
@@ -55,6 +61,10 @@ func (i Initialize) Run() {
 		priv, pub := wg.GetKeyPair()
 		peer.PrivateKey = priv
 		peer.PublicKey = pub
+		if *preshared == "per-peer" {
+			psk := wg.GetPresharedKey()
+			peer.PresharedKey = &psk
+		}
 		cfg.Peers[i] = peer
 	}
 

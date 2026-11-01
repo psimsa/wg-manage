@@ -127,6 +127,38 @@ func TestSaveAndLoadYaml(t *testing.T) {
 	}
 }
 
+func TestGetPeerPresharedKeyPrecedence(t *testing.T) {
+	cfg := loadTestConfig(t)
+	peerPsk := "PEERPSKPEERPSKPEERPSKPEERPSKPEERPSKPEERPSKPEERPSK="
+	target := cfg.Peers[0]
+	target.PresharedKey = &peerPsk
+	parent := cfg.Peers[1]
+
+	var buf bytes.Buffer
+	target.GetPeer(&buf, &cfg, &parent)
+	if !strings.Contains(buf.String(), "PresharedKey="+peerPsk) {
+		t.Errorf("per-peer PSK should win over global:\n%s", buf.String())
+	}
+	if strings.Contains(buf.String(), "PresharedKey=PSKPSK") {
+		t.Errorf("global PSK must not appear when peer has its own:\n%s", buf.String())
+	}
+
+	target.PresharedKey = nil
+	buf.Reset()
+	target.GetPeer(&buf, &cfg, &parent)
+	if !strings.Contains(buf.String(), "PresharedKey=PSKPSKPSKPSKPSKPSKPSKPSKPSKPSKPSKPSKPSKPSKPSK=") {
+		t.Errorf("global PSK should be used when peer has none:\n%s", buf.String())
+	}
+
+	cfgNoPsk := loadTestConfig(t)
+	cfgNoPsk.PresharedKey = nil
+	buf.Reset()
+	target.GetPeer(&buf, &cfgNoPsk, &parent)
+	if strings.Contains(buf.String(), "PresharedKey") {
+		t.Errorf("no PSK line expected when neither global nor peer key set:\n%s", buf.String())
+	}
+}
+
 func TestSamplePeerHasAllFields(t *testing.T) {
 	p := SamplePeer()
 	if p.Name == "" || p.PrivateKey == "" || p.PublicKey == "" {
