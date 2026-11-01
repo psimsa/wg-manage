@@ -1,5 +1,6 @@
 # Spec 002 — Automatic IP address management (IPAM)
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`, PR #65).
 ## Problem
 
 Today the user must pick each peer's address by hand (`add -ip ...`) and

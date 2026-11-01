@@ -1,5 +1,6 @@
 # Spec 006 — Preserve user-added YAML keys on peers (issue #34)
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`, PR #65).
 Closes #34
 
 ## Problem (issue #34)

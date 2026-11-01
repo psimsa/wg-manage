@@ -1,5 +1,6 @@
 # Spec 007 — Preshared key generation on bootstrap (issue #16)
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`, PR #65).
 Closes #16
 
 ## Problem (issue #16)

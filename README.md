@@ -128,6 +128,18 @@ wg-manage tui -config config.yaml
 
 Tabs: **Peers** (list with server/client badges; `a` add — address auto-allocated from the pool, `e` edit all fields, `d` delete, `r` toggle NAT/routing on a server using `settings.serverDefaults.egressInterface`, `o` edit per-peer override lines by target peer *name*), **Settings** (view pool/subnets/defaults), plus `g` generate, `s` save, `q` quit (asks to save unsaved changes). All edits go through the same model/IPAM code as the CLI commands.
 
+### `viz`
+
+Visualizes the network described by the config file:
+
+```
+wg-manage viz                          # ASCII diagram to stdout
+wg-manage viz -format dot | dot -Tsvg > network.svg
+wg-manage viz -format mermaid          # paste into any Mermaid renderer
+```
+
+Shows servers (peers with an endpoint) on top, clients below, key fingerprints, per-peer override counts, and free addresses from the pool.
+
 ### Server listen port
 
 Servers get `ListenPort` automatically: `bootstrap -port 443` (also rewrites the endpoint port), `add -server -endpoint host:port` (port taken from the endpoint), or `settings.serverDefaults.listenPort`. An explicit `add -port` wins over both.

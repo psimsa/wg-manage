@@ -1,5 +1,6 @@
 # Spec 004 — Network visualization (optional)
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`, PR #65).
 ## Problem
 
 With many peers it is hard to see at a glance who connects to whom, which

@@ -1,5 +1,6 @@
 # Spec 005 — ListenPort for servers (issue #59)
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`, PR #65).
 Closes #59
 
 ## Problem (issue #59)

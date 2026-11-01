@@ -42,7 +42,11 @@ Specs derived from filed GitHub feature requests:
   per-peer PSK support in the model plus `bootstrap -preshared=single|per-peer`
   and a `psk` command; global PSK behavior stays backward compatible.
 
-## Implementation order
+## Status
+
+All specs are **implemented** on branch `vibe/revive-wg-manage-f50cd7` (PR #65); CI build+test job is green on the head commit.
+
+## Implementation order (as executed)
 
 1. **006** — preserve-unknown-keys is a prerequisite for everything else:
    once the model round-trips arbitrary YAML, new sections (001) and fields
