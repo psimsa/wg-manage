@@ -10,6 +10,7 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/format"
 	"github.com/ofcoursedude/wg-manage/cmd/generate"
 	"github.com/ofcoursedude/wg-manage/cmd/initialize"
+	"github.com/ofcoursedude/wg-manage/cmd/pool"
 	"github.com/ofcoursedude/wg-manage/cmd/recreate"
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 )
@@ -25,6 +26,7 @@ func main() {
 		remove.Remove{},
 		format.Format{},
 		recreate.Recreate{},
+		pool.Pool{},
 	}
 
 	if len(os.Args) < 2 {

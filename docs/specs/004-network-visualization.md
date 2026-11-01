@@ -17,7 +17,7 @@ renderer). The same renderer is embedded as the **Network** tab in the TUI
 ### ASCII rendering
 
 ```
-WireGuard network  (pool 10.0.2.0/24, servers 10.0.2.0/26, clients 10.0.2.64/26)
+WireGuard network  (pool 10.0.2.0/24, servers 10.0.2.0/26, clients 10.0.2.0/24)
 
   ┌─ Servers ─────────────────────────────┐
   │ Server  10.0.2.1/32  vpn.example.com:51820 │

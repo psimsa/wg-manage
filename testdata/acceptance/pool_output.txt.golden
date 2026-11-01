@@ -1,0 +1,9 @@
+IP pool: 10.0.2.0/24
+  subnet clients: 10.0.2.0/24
+  subnet servers: 10.0.2.0/26
+
+  10.0.2.1           Server
+  10.0.2.2           My Laptop
+  10.0.2.3           My Phone
+
+3 of 254 addresses used, 251 free

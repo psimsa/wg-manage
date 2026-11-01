@@ -24,7 +24,7 @@ settings:
     servers:
       cidr: 10.0.2.0/26          # first quarter of the pool
     clients:
-      cidr: 10.0.2.64/26         # second quarter
+      cidr: 10.0.2.0/24         # whole pool (servers reserve the first quarter)
   serverDefaults:                # applied to peers that have an endpoint
     listenPort: 51820
     egressInterface: eth0        # used by the routing/NAT helper (TUI spec 003)

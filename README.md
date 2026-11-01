@@ -55,7 +55,7 @@ settings:
   ipPool: 10.0.2.0/24            # base CIDR for peer addresses
   subnets:                       # named subpools of ipPool
     servers: { cidr: 10.0.2.0/26 }
-    clients: { cidr: 10.0.2.64/26 }
+    clients: { cidr: 10.0.2.0/24 }
   serverDefaults:                # applied to peers with an endpoint when they are created
     listenPort: 51820
     egressInterface: eth0        # used for NAT/routing rules
@@ -66,7 +66,19 @@ settings:
     png: true
 ```
 
-Defaults are stamped onto a peer when it is added (`add`, `bootstrap`, `init`); changing `settings` later does not modify existing peers. `generate` uses `settings.generate` for `-output`/`-png` when the flags are not given. The pool/subnets are consumed by automatic address allocation (see `docs/specs/`).
+Defaults are stamped onto a peer when it is added (`add`, `bootstrap`, `init`); changing `settings` later does not modify existing peers. `generate` uses `settings.generate` for `-output`/`-png` when the flags are not given.
+
+## Automatic IP addresses (IPAM)
+
+When `settings.ipPool` is set, addresses are allocated automatically — no need to pass `-ip`:
+
+```
+wg-manage add -name MyPhone            # gets the first free address from the clients range
+wg-manage add -server -endpoint vpn.example.com:51821 -name Srv2   # from the servers range
+wg-manage pool                         # show pool, subnets, used and free addresses
+```
+
+Servers (peers with `-endpoint`) are allocated from `subnets.servers` when defined, clients from `subnets.clients`, otherwise both from the whole pool; the lowest free address is picked and network/broadcast addresses are skipped. Removing a peer frees its address. An explicit `-ip` is validated against the pool (`-force` overrides).
 
 ---
 

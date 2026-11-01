@@ -35,8 +35,10 @@ func (b Bootstrap) Run() {
 	priv, pub := wg.GetKeyPair()
 	server := models.NewPeer("Server", priv, pub)
 	server.Endpoint = endpoint
-	server.Address = make([]string, 1)
-	server.Address[0] = "10.0.2.1/32"
+	if err := cfg.AllocateForPeer(server); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
 	server.AllowedIps = make([]string, 1)
 	server.AllowedIps[0] = "0.0.0.0/0"
 	server.PostUp = []string{
@@ -58,10 +60,10 @@ func (b Bootstrap) Run() {
 
 	priv, pub = wg.GetKeyPair()
 	pc := models.NewPeer("My Laptop", priv, pub)
-	pc.Address = make([]string, 1)
-	pc.Address[0] = "10.0.2.2/32"
-	pc.AllowedIps = make([]string, 1)
-	pc.AllowedIps[0] = "10.0.2.2/32"
+	if err := cfg.AllocateForPeer(pc); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
 	if *pkl == true {
 		pc.PersistentKeepalive = new(int)
 		*pc.PersistentKeepalive = 21
@@ -71,10 +73,10 @@ func (b Bootstrap) Run() {
 
 	priv, pub = wg.GetKeyPair()
 	phone := models.NewPeer("My Phone", priv, pub)
-	phone.Address = make([]string, 1)
-	phone.Address[0] = "10.0.2.3/32"
-	phone.AllowedIps = make([]string, 1)
-	phone.AllowedIps[0] = "10.0.2.3/32"
+	if err := cfg.AllocateForPeer(phone); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
 	cfg.ApplyDefaultsToPeer(phone)
 	cfg.Peers[2] = *phone
 

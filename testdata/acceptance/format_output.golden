@@ -2,7 +2,7 @@ settings:
   ipPool: 10.0.2.0/24
   subnets:
     clients:
-      cidr: 10.0.2.64/26
+      cidr: 10.0.2.0/24
     servers:
       cidr: 10.0.2.0/26
   serverDefaults:

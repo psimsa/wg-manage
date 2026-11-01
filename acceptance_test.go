@@ -270,6 +270,60 @@ func TestAcceptanceCustomYamlKeysSurviveCommands(t *testing.T) {
 	}
 }
 
+func TestAcceptanceIPAMAutoAllocate(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+
+	run(t, dir, "add", "-name", "Auto Pi")
+	data := readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "- 10.0.2.4/32") {
+		t.Errorf("expected auto-allocated 10.0.2.4/32 for Auto Pi:\n%s", data)
+	}
+
+	run(t, dir, "add", "-server", "-endpoint", "vpn2.example.com:51821", "-name", "Second Server")
+	data = readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "- 10.0.2.2/32") {
+		t.Errorf("expected server allocated 10.0.2.2/32 from servers subnet:\n%s", data)
+	}
+	if !strings.Contains(data, "listenPort: 51821") {
+		t.Errorf("expected listenPort 51821 from endpoint:\n%s", data)
+	}
+
+	run(t, dir, "remove", "-name", "Auto Pi")
+	run(t, dir, "add", "-name", "Reused Pi")
+	data = readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "- 10.0.2.4/32") {
+		t.Errorf("expected freed address 10.0.2.4/32 to be reused:\n%s", data)
+	}
+}
+
+func TestAcceptanceIPAMRejectsOutOfPool(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	cmd := exec.Command(binaryPath, "add", "-name", "Bad", "-ip", "192.168.5.5/32")
+	cmd.Dir = dir
+	if out, err := cmd.CombinedOutput(); err == nil {
+		t.Fatalf("expected out-of-pool -ip to fail, got success:\n%s", out)
+	}
+	run(t, dir, "add", "-name", "Forced", "-ip", "192.168.5.5/32", "-force")
+	data := readFile(t, filepath.Join(dir, "config.yaml"))
+	if !strings.Contains(data, "192.168.5.5/32") {
+		t.Errorf("-force should allow out-of-pool address:\n%s", data)
+	}
+}
+
+func TestAcceptancePoolCommand(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	out := run(t, dir, "pool")
+	for _, want := range []string{"IP pool: 10.0.2.0/24", "servers:", "10.0.2.0/26", "Server", "My Laptop", "My Phone", "free"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("pool output missing %q:\n%s", want, out)
+		}
+	}
+	assertGolden(t, "pool_output.txt.golden", out)
+}
+
 func TestAcceptanceGenerateCustomOutput(t *testing.T) {
 	dir := t.TempDir()
 	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")

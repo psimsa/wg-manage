@@ -8,7 +8,6 @@ import (
 const (
 	DefaultIPPool      = "10.0.2.0/24"
 	DefaultServersCIDR = "10.0.2.0/26"
-	DefaultClientsCIDR = "10.0.2.64/26"
 	DefaultOutputDir   = "./output"
 	DefaultListenPort  = 51820
 	DefaultEgressIface = "eth0"
@@ -21,8 +20,10 @@ func DefaultSettings() *Settings {
 		IPPool: DefaultIPPool,
 		Subnets: map[string]Subnet{
 			"servers": {CIDR: DefaultServersCIDR},
-			"clients": {CIDR: DefaultClientsCIDR},
+			"clients": {CIDR: DefaultIPPool},
 		},
+		// note: subnets are allocation ranges, not reservations; the used-address
+		// set prevents conflicts. Set disjoint subnets to cleanly separate roles.
 		ServerDefaults: &PeerDefaults{
 			ListenPort:      &listenPort,
 			EgressInterface: DefaultEgressIface,
