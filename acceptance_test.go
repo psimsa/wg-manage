@@ -80,6 +80,23 @@ func TestAcceptanceHelp(t *testing.T) {
 	assertGolden(t, "help.txt.golden", run(t, dir))
 }
 
+func TestAcceptanceVersion(t *testing.T) {
+	dir := t.TempDir()
+	out := run(t, dir, "version")
+	if !strings.Contains(out, "2.0-preview1") {
+		t.Errorf("version output = %q, want it to contain 2.0-preview1", out)
+	}
+	assertGolden(t, "version.txt.golden", out)
+}
+
+func TestAcceptanceHelpContainsVersion(t *testing.T) {
+	dir := t.TempDir()
+	out := run(t, dir)
+	if !strings.Contains(out, "2.0-preview1") {
+		t.Errorf("help should show version, got:\n%s", out)
+	}
+}
+
 func TestAcceptanceBootstrapGenerate(t *testing.T) {
 	dir := t.TempDir()
 	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")

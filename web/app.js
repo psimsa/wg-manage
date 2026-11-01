@@ -13,7 +13,8 @@ async function boot() {
     status('wasm API not found');
     return;
   }
-  status('wasm ready ✔ (wg-manage ' + wgManage.version().result + ')');
+  status('wasm ready ✔');
+  document.getElementById('ver').textContent = wgManage.version().result;
   document.getElementById('app').hidden = false;
 
   const yamlEl = document.getElementById('yaml');

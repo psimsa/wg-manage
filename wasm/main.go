@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"syscall/js"
 
+	"github.com/ofcoursedude/wg-manage/internal/buildinfo"
 	"github.com/ofcoursedude/wg-manage/models"
 	"github.com/ofcoursedude/wg-manage/viz"
 	"github.com/ofcoursedude/wg-manage/wg"
@@ -224,7 +225,7 @@ func registerAPI() {
 			return result(out, nil)
 		}),
 		"version": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			return result("wg-manage wasm dev", nil)
+			return result("wg-manage "+buildinfo.Version, nil)
 		}),
 	}
 	js.Global().Set("wgManage", api)

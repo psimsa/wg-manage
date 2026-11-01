@@ -1,4 +1,4 @@
-wg-manage is a command line tool to centrally organize your wireguard configuration.
+wg-manage 2.0-preview1 is a command line tool to centrally organize your wireguard configuration.
 [add | a] -name {peer-1} [-ip {} | auto] [-server -endpoint {}] -persistent {false} -add-routing {false} -force {false} -config {config.yaml}
 	Add a new record to the yaml file; without -ip the address is auto-allocated from settings.ipPool
 	Example: wg-manage a -name MyHomeComputer (auto IP) or wg-manage a -name MyHomeComputer -ip 10.0.2.10
@@ -33,3 +33,5 @@ wg-manage is a command line tool to centrally organize your wireguard configurat
 [viz | v] -config {config.yaml} -format {ascii|dot|mermaid}
 	Visualizes the configured wireguard network (servers, clients, overrides, free addresses)
 	Example: wg-manage v -format dot | dot -Tsvg > network.svg
+[version | v]
+	Prints the wg-manage version

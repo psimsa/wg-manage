@@ -28,7 +28,7 @@ Each function takes plain JS values and returns `{ ok: true, result }` or
 - `removePeer(yaml, name)` → updated YAML
 - `bootstrap(endpoint)` → fresh YAML (server + 2 clients, NAT rules, settings)
 - `viz(yaml, format?)` → ASCII / DOT / Mermaid rendering
-- `version()` → version string
+- `version()` → version string (currently `wg-manage 2.0-preview1`)
 
 All state lives in the YAML text (persisted by the app in `localStorage`), so
 the wasm module itself is stateless and there is no filesystem access.
@@ -59,7 +59,12 @@ running tests (test binaries don't call `main()`).
 
 `.github/workflows/wasm.yml` runs the wasm API tests under Node and builds +
 uploads the `wg-manage-web` artifact (`web/dist/`) on pushes touching the
-relevant paths.
+relevant paths. On pushes to `main`, a `deploy-pages` job additionally
+publishes `web/dist/` to **GitHub Pages** (source: GitHub Actions) via the
+official `configure-pages` / `upload-pages-artifact` / `deploy-pages`
+actions. Enable once in repo settings: *Settings → Pages → Build and
+deployment → Source: GitHub Actions*. The site then lives at
+`https://<owner>.github.io/<repo>/`.
 
 ## Limitations / notes
 

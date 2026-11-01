@@ -15,7 +15,9 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/recreate"
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 	"github.com/ofcoursedude/wg-manage/cmd/tui"
+	"github.com/ofcoursedude/wg-manage/cmd/version"
 	"github.com/ofcoursedude/wg-manage/cmd/viz"
+	"github.com/ofcoursedude/wg-manage/internal/buildinfo"
 )
 
 var availableCommands []Command
@@ -33,6 +35,7 @@ func main() {
 		psk.Psk{},
 		tui.Tui{},
 		viz.Viz{},
+		version.Version{},
 	}
 
 	if len(os.Args) < 2 {
@@ -51,7 +54,7 @@ func main() {
 }
 
 func printHelp() {
-	fmt.Println("wg-manage is a command line tool to centrally organize your wireguard configuration.")
+	fmt.Printf("wg-manage %s is a command line tool to centrally organize your wireguard configuration.\n", buildinfo.Version)
 	for _, command := range availableCommands {
 		command.PrintHelp()
 	}
