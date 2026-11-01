@@ -30,15 +30,32 @@ section of the YAML file.
   `wg-manage viz` command rendering the network as ASCII / Graphviz DOT /
   Mermaid.
 
+Specs derived from filed GitHub feature requests:
+
+- [005 — ListenPort for servers](./005-listen-port.md) — closes #59:
+  automatic `ListenPort` when creating servers (`bootstrap -port`,
+  `add -server -endpoint host:port`, `settings.serverDefaults.listenPort`).
+- [006 — Preserve custom YAML keys](./006-preserve-custom-yaml-keys.md) —
+  closes #34: user-added `key: value` pairs on peers/top level must survive
+  `add`/`remove`/`format`/TUI round-trips (inline-map capture, golden tests).
+- [007 — Preshared keys on bootstrap](./007-preshared-keys.md) — closes #16:
+  per-peer PSK support in the model plus `bootstrap -preshared=single|per-peer`
+  and a `psk` command; global PSK behavior stays backward compatible.
+
 ## Implementation order
 
-1. **001 + 002** — extend the data model and CLI commands (`add`, `bootstrap`,
+1. **006** — preserve-unknown-keys is a prerequisite for everything else:
+   once the model round-trips arbitrary YAML, new sections (001) and fields
+   (007) can never silently destroy user data.
+2. **001 + 002** — extend the data model and CLI commands (`add`, `bootstrap`,
    `generate`, `remove`, `init`) to understand `settings` and the IP pool.
    This makes the YAML schema the single source of truth and is fully testable
    without a UI.
-2. **003** — the TUI on top of the same model; it only reads/writes YAML via
+3. **005 + 007** — small, self-contained CLI/model features (listen port
+   automation, PSK generation) on top of the new schema.
+4. **003** — the TUI on top of the same model; it only reads/writes YAML via
    the existing `models` package plus the IPAM logic from 002.
-3. **004** — visualization, usable both as a CLI command and as a TUI tab.
+5. **004** — visualization, usable both as a CLI command and as a TUI tab.
 
 Cross-cutting: unit tests for all pure logic (parsing, allocation, rendering),
 backward compatibility with existing `config.yaml` files (no `settings`
