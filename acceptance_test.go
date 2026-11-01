@@ -229,6 +229,47 @@ func TestAcceptanceOldConfigWithoutSettingsStillWorks(t *testing.T) {
 	}
 }
 
+func TestAcceptanceCustomYamlKeysSurviveCommands(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	cfgPath := filepath.Join(dir, "config.yaml")
+	data := readFile(t, cfgPath)
+	data = strings.Replace(data, "peers:", "projectmeta: my homelab\npeers:", 1)
+	data = strings.Replace(data, "- name: Server", "- name: Server\n  location: Berlin\n  owner: alice\n  tags:\n  - infra\n  - vpn", 1)
+	if err := os.WriteFile(cfgPath, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	run(t, dir, "add", "-name", "Test Pi", "-ip", "10.0.2.4/32")
+	after := readFile(t, cfgPath)
+	for _, want := range []string{"projectmeta: my homelab", "location: Berlin", "owner: alice", "- infra", "- vpn"} {
+		if !strings.Contains(after, want) {
+			t.Errorf("after add: %q missing:\n%s", want, after)
+		}
+	}
+
+	formatted := run(t, dir, "format", "-input", "config.yaml")
+	for _, want := range []string{"projectmeta: my homelab", "location: Berlin", "owner: alice"} {
+		if !strings.Contains(formatted, want) {
+			t.Errorf("after format: %q missing:\n%s", want, formatted)
+		}
+	}
+
+	run(t, dir, "remove", "-name", "Test Pi")
+	after = readFile(t, cfgPath)
+	for _, want := range []string{"projectmeta: my homelab", "location: Berlin", "owner: alice", "- infra"} {
+		if !strings.Contains(after, want) {
+			t.Errorf("after remove: %q missing:\n%s", want, after)
+		}
+	}
+
+	run(t, dir, "recreate", "-config", "config.yaml")
+	run(t, dir, "generate", "-output", "./out")
+	if _, err := os.Stat(filepath.Join(dir, "out", "Server.conf")); err != nil {
+		t.Errorf("generate after mutations failed: %v", err)
+	}
+}
+
 func TestAcceptanceGenerateCustomOutput(t *testing.T) {
 	dir := t.TempDir()
 	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
