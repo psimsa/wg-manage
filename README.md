@@ -118,6 +118,16 @@ Shows the configured IP pool, subnets, which addresses are used by which peer, a
 
 Manages preshared keys: `wg-manage psk -mode status` (default) shows the current state, `-mode single` sets one global `presharedKey`, `-mode per-peer` gives every peer its own `presharedKey` under `peerSection`, `-mode remove` clears all. `bootstrap -preshared single|per-peer` and `init -preshared none|single|per-peer` do the same at creation time. A peer-level key overrides the global one in generated `[Peer]` blocks.
 
+### `tui`
+
+Interactive terminal UI — no manual YAML editing needed:
+
+```
+wg-manage tui -config config.yaml
+```
+
+Tabs: **Peers** (list with server/client badges; `a` add — address auto-allocated from the pool, `e` edit all fields, `d` delete, `r` toggle NAT/routing on a server using `settings.serverDefaults.egressInterface`, `o` edit per-peer override lines by target peer *name*), **Settings** (view pool/subnets/defaults), plus `g` generate, `s` save, `q` quit (asks to save unsaved changes). All edits go through the same model/IPAM code as the CLI commands.
+
 ### Server listen port
 
 Servers get `ListenPort` automatically: `bootstrap -port 443` (also rewrites the endpoint port), `add -server -endpoint host:port` (port taken from the endpoint), or `settings.serverDefaults.listenPort`. An explicit `add -port` wins over both.

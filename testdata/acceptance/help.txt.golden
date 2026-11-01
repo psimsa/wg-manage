@@ -27,3 +27,6 @@ wg-manage is a command line tool to centrally organize your wireguard configurat
 [psk] [-mode {status|single|per-peer|remove}] -config {config.yaml}
 	Manage preshared keys: status (default), single global key, unique per-peer keys, or remove all
 	Example: wg-manage psk -mode per-peer
+[tui | t] -config {config.yaml}
+	Interactive terminal UI: manage peers, routing, overrides and settings without editing yaml
+	Example: wg-manage tui
