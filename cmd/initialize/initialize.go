@@ -27,11 +27,15 @@ func (i Initialize) Run() {
 	configFile := cmd.String("output", "config.yaml", "Output file name")
 	simple := cmd.Bool("simple", false, "Whether to create only basic structure")
 	preshared := cmd.Bool("preshared", true, "Whether to create preshared key")
+	settings := cmd.Bool("settings", true, "Whether to include the default settings section (ip pool, defaults)")
 
 	cmd.Parse(os.Args[2:])
 
 	cfg := models.Configuration{
 		Peers: make([]models.Peer, *peerCount),
+	}
+	if *settings {
+		cfg.Settings = models.DefaultSettings()
 	}
 	if *preshared {
 		presharedKey := wg.GetPresharedKey()

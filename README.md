@@ -46,6 +46,30 @@ Once you're done, you can distribute the config files to the devices and fire up
 
 ---
 
+# Settings
+
+New configurations created by `bootstrap` or `init` include a top-level `settings` section with project-level options. It is optional — older config files without it keep working unchanged.
+
+```yaml
+settings:
+  ipPool: 10.0.2.0/24            # base CIDR for peer addresses
+  subnets:                       # named subpools of ipPool
+    servers: { cidr: 10.0.2.0/26 }
+    clients: { cidr: 10.0.2.64/26 }
+  serverDefaults:                # applied to peers with an endpoint when they are created
+    listenPort: 51820
+    egressInterface: eth0        # used for NAT/routing rules
+  clientDefaults:                # applied to peers without an endpoint
+    persistentKeepalive: 25
+  generate:                      # defaults for the `generate` command (CLI flags win)
+    outputDir: ./output
+    png: true
+```
+
+Defaults are stamped onto a peer when it is added (`add`, `bootstrap`, `init`); changing `settings` later does not modify existing peers. `generate` uses `settings.generate` for `-output`/`-png` when the flags are not given. The pool/subnets are consumed by automatic address allocation (see `docs/specs/`).
+
+---
+
 # Adding and removing configurations
 
 Aside from the `bootstrap` and `generate` commands, there are 3 more commands currently available:

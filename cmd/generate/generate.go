@@ -35,7 +35,20 @@ func (g Generate) Run() {
 	cmd.Parse(os.Args[2:])
 
 	cfg := models.LoadYaml(*configFile)
-	path, err := filepath.Abs(*outputDir)
+	pngSet := false
+	outputSet := false
+	cmd.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "png":
+			pngSet = true
+		case "output":
+			outputSet = true
+		}
+	})
+	pngVal := cfg.ResolvePNG(pngSet, *png)
+	outputVal := cfg.ResolveOutputDir(outputSet, *outputDir)
+
+	path, err := filepath.Abs(outputVal)
 	utils.HandleError(err, "error determining output path")
 	_, err = os.Stat(path)
 	if err != nil {
@@ -55,7 +68,7 @@ func (g Generate) Run() {
 			peer2.GetPeer(file, &cfg, &peer)
 		}
 		file.Close()
-		if *png == true {
+		if pngVal {
 			getQrCode(filename)
 		}
 	}

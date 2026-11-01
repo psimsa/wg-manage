@@ -73,6 +73,9 @@ func LoadYaml(configFile string) Configuration {
 	utils.HandleError(err, "could not open yaml file")
 	err = yaml.Unmarshal(data, &cfg)
 	utils.HandleError(err, "could not parse yaml file")
+	if err := cfg.Validate(); err != nil {
+		utils.HandleError(err, "invalid configuration")
+	}
 	return cfg
 }
 

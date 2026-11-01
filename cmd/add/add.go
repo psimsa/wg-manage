@@ -45,14 +45,14 @@ func (a Add) Run() {
 	peer.AllowedIps = peer.Address
 	if *endpoint != "" {
 		peer.Endpoint = endpoint
-		listenPort := strings.Split(*endpoint, ":")[1]
-		intVar, err := strconv.Atoi(listenPort)
-		if err != nil {
-			fmt.Println("Error parsing listen port")
-			os.Exit(1)
+		if parts := strings.Split(*endpoint, ":"); len(parts) == 2 {
+			intVar, err := strconv.Atoi(parts[1])
+			if err != nil || intVar < 1 || intVar > 65535 {
+				fmt.Println("Error parsing listen port")
+				os.Exit(1)
+			}
+			peer.ListenPort = &intVar
 		}
-		fmt.Println(peer.Endpoint)
-		peer.ListenPort = &intVar
 	}
 	if *pkl {
 		peer.PersistentKeepalive = new(int)
@@ -75,6 +75,7 @@ func (a Add) Run() {
 		)
 	}
 
+	cfg.ApplyDefaultsToPeer(&peer)
 	cfg.Peers = append(cfg.Peers, peer)
 
 	models.SaveYaml(cfg, *configFile)

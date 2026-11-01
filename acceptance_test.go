@@ -135,6 +135,100 @@ func TestAcceptanceInit(t *testing.T) {
 	assertGolden(t, "init_simple_config.yaml.golden", readFile(t, filepath.Join(dir2, "simple.yaml")))
 }
 
+func TestAcceptanceGenerateHonorsSettings(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+
+	cfgPath := filepath.Join(dir, "config.yaml")
+	data := readFile(t, cfgPath)
+	data = strings.Replace(data, "outputDir: ./output", "outputDir: ./from-settings", 1)
+	data = strings.Replace(data, "png: true", "png: false", 1)
+	if err := os.WriteFile(cfgPath, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	run(t, dir, "generate")
+	entries, err := os.ReadDir(filepath.Join(dir, "from-settings"))
+	if err != nil {
+		t.Fatalf("settings outputDir not honored: %v", err)
+	}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".png") {
+			t.Errorf("settings png=false not honored, found %s", e.Name())
+		}
+	}
+	if len(entries) != 3 {
+		t.Errorf("expected 3 conf files in from-settings, got %d", len(entries))
+	}
+
+	run(t, dir, "generate", "-output", "./flag-wins")
+	if _, err := os.Stat(filepath.Join(dir, "flag-wins")); err != nil {
+		t.Errorf("flag -output should override settings: %v", err)
+	}
+}
+
+func TestAcceptanceInvalidSettingsRejected(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	cfgPath := filepath.Join(dir, "config.yaml")
+	data := readFile(t, cfgPath)
+	data = strings.Replace(data, "ipPool: 10.0.2.0/24", "ipPool: 10.0.2.0/33", 1)
+	if err := os.WriteFile(cfgPath, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command(binaryPath, "generate")
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected failure for invalid ipPool, got success:\n%s", out)
+	}
+	if !strings.Contains(string(out), "ipPool") {
+		t.Errorf("error should mention ipPool, got:\n%s", out)
+	}
+}
+
+func TestAcceptanceOldConfigWithoutSettingsStillWorks(t *testing.T) {
+	dir := t.TempDir()
+	old := `peers:
+- name: Server
+  interfaceSection:
+    privateKey: PRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRI=
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.1/32
+  peerSection:
+    publicKey: PUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPU=
+    allowedIps:
+    - 0.0.0.0/0
+    endpoint: vpn.example.com:51820
+- name: Client
+  interfaceSection:
+    privateKey: PRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRIVPRI2=
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.2/32
+  peerSection:
+    publicKey: PUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPUBPU2=
+    allowedIps:
+    - 10.0.2.2/32
+`
+	if err := os.WriteFile(filepath.Join(dir, "config.yaml"), []byte(old), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	run(t, dir, "generate", "-output", "./out")
+	entries, err := os.ReadDir(filepath.Join(dir, "out"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) == 0 {
+		t.Error("old config without settings should still generate configs")
+	}
+	serverConf := readFile(t, filepath.Join(dir, "out", "Server.conf"))
+	if strings.Contains(serverConf, "ListenPort") {
+		t.Error("old config without settings must not gain ListenPort")
+	}
+}
+
 func TestAcceptanceGenerateCustomOutput(t *testing.T) {
 	dir := t.TempDir()
 	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")

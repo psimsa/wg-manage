@@ -26,9 +26,12 @@ func (b Bootstrap) Run() {
 	configFile := cmd.String("output", "config.yaml", "Output file name")
 
 	cmd.Parse(os.Args[2:])
+	settings := models.DefaultSettings()
 	cfg := models.Configuration{
-		Peers: make([]models.Peer, 3),
+		Settings: settings,
+		Peers:    make([]models.Peer, 3),
 	}
+	egress := settings.ServerDefaults.EgressInterface
 	priv, pub := wg.GetKeyPair()
 	server := models.NewPeer("Server", priv, pub)
 	server.Endpoint = endpoint
@@ -41,15 +44,16 @@ func (b Bootstrap) Run() {
 		"iptables -A FORWARD -i wg0 -j ACCEPT",
 		"iptables -A FORWARD -o wg0 -j ACCEPT",
 		"iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE",
-		"iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+		fmt.Sprintf("iptables -t nat -A POSTROUTING -o %s -j MASQUERADE", egress),
 	}
 	server.PostDown = []string{
 		"sysctl -q -w net.ipv4.ip_forward=0",
 		"iptables -D FORWARD -i wg0 -j ACCEPT",
 		"iptables -D FORWARD -o wg0 -j ACCEPT",
 		"iptables -t nat -D POSTROUTING -o wg0 -j MASQUERADE",
-		"iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE",
+		fmt.Sprintf("iptables -t nat -D POSTROUTING -o %s -j MASQUERADE", egress),
 	}
+	cfg.ApplyDefaultsToPeer(server)
 	cfg.Peers[0] = *server
 
 	priv, pub = wg.GetKeyPair()
@@ -62,6 +66,7 @@ func (b Bootstrap) Run() {
 		pc.PersistentKeepalive = new(int)
 		*pc.PersistentKeepalive = 21
 	}
+	cfg.ApplyDefaultsToPeer(pc)
 	cfg.Peers[1] = *pc
 
 	priv, pub = wg.GetKeyPair()
@@ -70,6 +75,7 @@ func (b Bootstrap) Run() {
 	phone.Address[0] = "10.0.2.3/32"
 	phone.AllowedIps = make([]string, 1)
 	phone.AllowedIps[0] = "10.0.2.3/32"
+	cfg.ApplyDefaultsToPeer(phone)
 	cfg.Peers[2] = *phone
 
 	models.SaveYaml(cfg, *configFile)

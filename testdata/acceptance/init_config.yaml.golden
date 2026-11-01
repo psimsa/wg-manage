@@ -1,3 +1,17 @@
+settings:
+  ipPool: 10.0.2.0/24
+  subnets:
+    clients:
+      cidr: 10.0.2.64/26
+    servers:
+      cidr: 10.0.2.0/26
+  serverDefaults:
+    listenPort: 51820
+    egressInterface: eth0
+  clientDefaults: {}
+  generate:
+    outputDir: ./output
+    png: true
 presharedKey: <KEY>
 peers:
 - name: Peer-1
