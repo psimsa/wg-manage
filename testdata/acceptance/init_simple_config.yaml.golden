@@ -1,0 +1,7 @@
+peers:
+- name: <add name>
+  interfaceSection:
+    privateKey: <KEY>
+  peerSection:
+    publicKey: <KEY>
+    allowedIps: []

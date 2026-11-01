@@ -1,0 +1,23 @@
+wg-manage is a command line tool to centrally organize your wireguard configuration.
+[add | a] -name {peer-1} -ip {} -endpoint {} -persistent {false} -add-routing {false} -config {config.yaml}
+	Add a new record to the yaml file
+	Example: wg-manage a -name MyHomeComputer -ip 10.0.2.10
+[bootstrap | b] -endpoint {some.server.somewhere:51820} -persistent {false} -output {config.yaml}
+	Creates a simple, ready to run wireguard network configuration with one server and two clients, 'kill-switch' (all client traffic goes through wireguard, including external) and NAT.
+	Assumes 10.0.2.0/24 CIDR, wg0 and eth0 on server.
+	Example: wg-manage b -endpoint myhome.someddnsprovider.com
+[generate | g] -output {./output} -png {true} -config {config.yaml}
+	Generates config files from yaml file
+	Example: wg-manage g -config my-wireguard.yaml
+[init | i] -clients {1} -servers {1} -output {config.yaml}
+	Initialize basic configuration with specified number of clients and servers
+	Requires further editing of the resulting yaml file with endpoint information.
+	Example: wg-manage i -clients 10 -servers 2
+[remove | r] [-name {} | -key {}] -config {config.yaml}
+	Removes a record from the config file by name or public key
+	Example: wg-manage r -name MyHomeComputer
+[format | f] -input {config.yaml}
+	Formats config file to stdout
+[recreate | rc] -config {config.yaml}
+	(*DANGEROUS*) Recreates all private and public keys (*DANGEROUS*)
+	(outputs to stdout for safety reasons)

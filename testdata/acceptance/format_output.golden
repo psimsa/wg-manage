@@ -1,0 +1,55 @@
+peers:
+- name: Server
+  interfaceSection:
+    privateKey: <KEY>
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.1/32
+    postUp:
+    - sysctl -q -w net.ipv4.ip_forward=1
+    - iptables -A FORWARD -i wg0 -j ACCEPT
+    - iptables -A FORWARD -o wg0 -j ACCEPT
+    - iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
+    - iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    postDown:
+    - sysctl -q -w net.ipv4.ip_forward=0
+    - iptables -D FORWARD -i wg0 -j ACCEPT
+    - iptables -D FORWARD -o wg0 -j ACCEPT
+    - iptables -t nat -D POSTROUTING -o wg0 -j MASQUERADE
+    - iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - 0.0.0.0/0
+    endpoint: vpn.example.com:51820
+- name: My Laptop
+  interfaceSection:
+    privateKey: <KEY>
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.2/32
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - 10.0.2.2/32
+- name: My Phone
+  interfaceSection:
+    privateKey: <KEY>
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.3/32
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - 10.0.2.3/32
+- name: Test Pi
+  interfaceSection:
+    privateKey: <KEY>
+  interfaceSectionWgQuick:
+    address:
+    - 10.0.2.4/32
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - 10.0.2.4/32
+

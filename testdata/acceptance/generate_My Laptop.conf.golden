@@ -1,0 +1,10 @@
+[Interface]
+PrivateKey=<KEY>
+Address=10.0.2.2/32
+
+[Peer]
+# Server
+PublicKey=<KEY>
+AllowedIPs=0.0.0.0/0
+Endpoint=vpn.example.com:51820
+
