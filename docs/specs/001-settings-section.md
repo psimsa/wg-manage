@@ -1,5 +1,8 @@
 # Spec 001 — `settings` section in the YAML config
 
+**Status: implemented** (branch `vibe/revive-wg-manage-f50cd7`). The section
+below describes the design; see `models/settings.go` for the code.
+
 ## Problem
 
 Project-level configuration (IP pool, default interface for NAT, output
