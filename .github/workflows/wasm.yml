@@ -2,7 +2,6 @@ name: Web (wasm/PWA)
 
 on:
   push:
-    branches: [main]
     paths:
       - 'wasm/**'
       - 'web/**'
