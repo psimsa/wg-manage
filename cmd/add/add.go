@@ -24,11 +24,14 @@ func (a Add) LongCommand() string {
 func (a Add) Run() {
 	cmd := flag.NewFlagSet("add", flag.ExitOnError)
 	name := cmd.String("name", "peer-1", "Name of the peer")
-	ip := cmd.String("ip", "", "IP address of the new peer")
+	ip := cmd.String("ip", "", "IP address of the new peer (auto-allocated from the pool when omitted and settings.ipPool is set)")
 	endpoint := cmd.String("endpoint", "", "Endpoint, can be empty")
+	server := cmd.Bool("server", false, "Whether the new peer is a server (address allocated from the servers subnet)")
+	port := cmd.Int("port", 0, "Listen port for a server peer (overrides endpoint port and settings default)")
 	configFile := cmd.String("config", "config.yaml", "Config file name")
 	pkl := cmd.Bool("persistent", false, "Whether persistent keep alive should be set for one client")
 	ar := cmd.String("add-routing", "", "Whether to add routing for the new peer")
+	force := cmd.Bool("force", false, "Allow an explicit -ip outside the configured pool")
 
 	cmd.Parse(os.Args[2:])
 
@@ -38,21 +41,48 @@ func (a Add) Run() {
 	peer.PrivateKey = priv
 	peer.PublicKey = pub
 	peer.Name = *name
-	if *ip != "" {
-		peer.Address = make([]string, 1)
-		peer.Address[0] = *ip
-	}
-	peer.AllowedIps = peer.Address
 	if *endpoint != "" {
 		peer.Endpoint = endpoint
-		listenPort := strings.Split(*endpoint, ":")[1]
-		intVar, err := strconv.Atoi(listenPort)
-		if err != nil {
-			fmt.Println("Error parsing listen port")
+	}
+	if *server && *endpoint == "" {
+		fmt.Println("A server peer requires -endpoint")
+		os.Exit(1)
+	}
+	if *ip != "" {
+		if !*force {
+			if err := cfg.ValidateAddressInPool(*ip); err != nil {
+				fmt.Println("Error:", err, "(use -force to override)")
+				os.Exit(1)
+			}
+		}
+		peer.Address = make([]string, 1)
+		peer.Address[0] = *ip
+		peer.AllowedIps = peer.Address
+	} else if cfg.Settings != nil && cfg.Settings.IPPool != "" {
+		if err := cfg.AllocateForPeer(&peer); err != nil {
+			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
-		fmt.Println(peer.Endpoint)
-		peer.ListenPort = &intVar
+	} else {
+		peer.AllowedIps = peer.Address
+	}
+	if *endpoint != "" {
+		parts := strings.Split(*endpoint, ":")
+		if len(parts) == 2 {
+			intVar, err := strconv.Atoi(parts[1])
+			if err != nil || intVar < 1 || intVar > 65535 {
+				fmt.Println("Error parsing listen port")
+				os.Exit(1)
+			}
+			peer.ListenPort = &intVar
+		}
+	}
+	if *port != 0 {
+		if *port < 1 || *port > 65535 {
+			fmt.Println("Error: -port must be between 1 and 65535")
+			os.Exit(1)
+		}
+		peer.ListenPort = port
 	}
 	if *pkl {
 		peer.PersistentKeepalive = new(int)
@@ -75,13 +105,14 @@ func (a Add) Run() {
 		)
 	}
 
+	cfg.ApplyDefaultsToPeer(&peer)
 	cfg.Peers = append(cfg.Peers, peer)
 
 	models.SaveYaml(cfg, *configFile)
 }
 
 func (a Add) PrintHelp() {
-	fmt.Println("[add | a] -name {peer-1} -ip {} -endpoint {} -persistent {false} -add-routing {false} -config {config.yaml}")
-	fmt.Println("\tAdd a new record to the yaml file")
-	fmt.Println("\tExample: wg-manage a -name MyHomeComputer -ip 10.0.2.10")
+	fmt.Println("[add | a] -name {peer-1} [-ip {} | auto] [-server -endpoint {}] -persistent {false} -add-routing {false} -force {false} -config {config.yaml}")
+	fmt.Println("\tAdd a new record to the yaml file; without -ip the address is auto-allocated from settings.ipPool")
+	fmt.Println("\tExample: wg-manage a -name MyHomeComputer (auto IP) or wg-manage a -name MyHomeComputer -ip 10.0.2.10")
 }

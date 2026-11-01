@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"sort"
 
 	"gopkg.in/yaml.v2"
@@ -32,7 +32,11 @@ func (p *Peer) GetPeer(w io.Writer, cfg *Configuration, parent *Peer) {
 	fmt.Fprintf(w, "# %s", p.Name)
 	fmt.Fprintln(w, "")
 	utils.WriteItemIfAny(p.PublicKey, "PublicKey", &w)
-	utils.WriteItemIfAny(cfg.PresharedKey, "PresharedKey", &w)
+	if p.PresharedKey != nil {
+		utils.WriteItemIfAny(*p.PresharedKey, "PresharedKey", &w)
+	} else {
+		utils.WriteItemIfAny(cfg.PresharedKey, "PresharedKey", &w)
+	}
 	utils.WriteItemsIfAny(p.PeerSection.AllowedIps, "AllowedIPs", &w)
 	utils.WriteItemIfAny(p.PeerSection.Endpoint, "Endpoint", &w)
 	utils.WriteItemIfAny(parent.PeerSection.PersistentKeepalive, "PersistentKeepalive", &w)
@@ -69,10 +73,13 @@ func GetYaml(configuration Configuration) []byte {
 
 func LoadYaml(configFile string) Configuration {
 	cfg := Configuration{}
-	data, err := ioutil.ReadFile(configFile)
+	data, err := os.ReadFile(configFile)
 	utils.HandleError(err, "could not open yaml file")
 	err = yaml.Unmarshal(data, &cfg)
 	utils.HandleError(err, "could not parse yaml file")
+	if err := cfg.Validate(); err != nil {
+		utils.HandleError(err, "invalid configuration")
+	}
 	return cfg
 }
 
