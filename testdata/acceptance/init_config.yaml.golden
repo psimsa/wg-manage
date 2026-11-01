@@ -1,0 +1,82 @@
+settings:
+  ipPool: 10.0.2.0/24
+  subnets:
+    clients:
+      cidr: 10.0.2.0/24
+    servers:
+      cidr: 10.0.2.0/26
+  serverDefaults:
+    listenPort: 51820
+    egressInterface: eth0
+  clientDefaults: {}
+  generate:
+    outputDir: ./output
+    png: true
+presharedKey: <KEY>
+peers:
+- name: Peer-1
+  description: <add here or remove section>
+  peerOverrides:
+    some public key 1:
+    - AllowedIPs=10.0.0.0/24
+    - AllowedIPs=192.168.0.0/24
+  interfaceSection:
+    privateKey: <KEY>
+    listenPort: 51820
+    fwMark: <add here or remove section>
+  interfaceSectionWgQuick:
+    address:
+    - <add here or remove section>
+    dns:
+    - <add here or remove section>
+    saveConfig: false
+    preUp:
+    - <add here or remove section>
+    postUp:
+    - <add here or remove section>
+    preDown:
+    - <add here or remove section>
+    postDown:
+    - <add here or remove section>
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - <add here or remove section>
+    endpoint: <add here or remove section>
+    persistentKeepalive: 21
+  peerSectionWgQuick:
+    mtu: <add here or remove section>
+    table: <add here or remove section>
+- name: Peer-2
+  description: <add here or remove section>
+  peerOverrides:
+    some public key 1:
+    - AllowedIPs=10.0.0.0/24
+    - AllowedIPs=192.168.0.0/24
+  interfaceSection:
+    privateKey: <KEY>
+    listenPort: 51820
+    fwMark: <add here or remove section>
+  interfaceSectionWgQuick:
+    address:
+    - <add here or remove section>
+    dns:
+    - <add here or remove section>
+    saveConfig: false
+    preUp:
+    - <add here or remove section>
+    postUp:
+    - <add here or remove section>
+    preDown:
+    - <add here or remove section>
+    postDown:
+    - <add here or remove section>
+  peerSection:
+    publicKey: <KEY>
+    allowedIps:
+    - <add here or remove section>
+    endpoint: <add here or remove section>
+    persistentKeepalive: 21
+  peerSectionWgQuick:
+    mtu: <add here or remove section>
+    table: <add here or remove section>

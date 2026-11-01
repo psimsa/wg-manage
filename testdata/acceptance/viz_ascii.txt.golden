@@ -1,0 +1,10 @@
+WireGuard network  (pool 10.0.2.0/24, clients 10.0.2.0/24, servers 10.0.2.0/26)
+
+  [SERVER] Server  10.0.2.1/32  [KEY8]  vpn.example.com:51820
+     |
+     |
+     |
+  [client] My Laptop  10.0.2.2/32  [KEY8]
+  [client] My Phone  10.0.2.3/32  [KEY8]
+
+  free addresses: 251 of 254

@@ -15,7 +15,12 @@ wg-manage
 wg-manage.exe
 output/
 *.yaml
+# ...but keep yaml fixtures and goldens used by tests
+!testdata/**/*.yaml
+!models/testdata/**/*.yaml
+!**/*.golden
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea/
+web/dist/

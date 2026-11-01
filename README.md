@@ -46,6 +46,42 @@ Once you're done, you can distribute the config files to the devices and fire up
 
 ---
 
+# Settings
+
+New configurations created by `bootstrap` or `init` include a top-level `settings` section with project-level options. It is optional — older config files without it keep working unchanged.
+
+```yaml
+settings:
+  ipPool: 10.0.2.0/24            # base CIDR for peer addresses
+  subnets:                       # named subpools of ipPool
+    servers: { cidr: 10.0.2.0/26 }
+    clients: { cidr: 10.0.2.0/24 }
+  serverDefaults:                # applied to peers with an endpoint when they are created
+    listenPort: 51820
+    egressInterface: eth0        # used for NAT/routing rules
+  clientDefaults:                # applied to peers without an endpoint
+    persistentKeepalive: 25
+  generate:                      # defaults for the `generate` command (CLI flags win)
+    outputDir: ./output
+    png: true
+```
+
+Defaults are stamped onto a peer when it is added (`add`, `bootstrap`, `init`); changing `settings` later does not modify existing peers. `generate` uses `settings.generate` for `-output`/`-png` when the flags are not given.
+
+## Automatic IP addresses (IPAM)
+
+When `settings.ipPool` is set, addresses are allocated automatically — no need to pass `-ip`:
+
+```
+wg-manage add -name MyPhone            # gets the first free address from the clients range
+wg-manage add -server -endpoint vpn.example.com:51821 -name Srv2   # from the servers range
+wg-manage pool                         # show pool, subnets, used and free addresses
+```
+
+Servers (peers with `-endpoint`) are allocated from `subnets.servers` when defined, clients from `subnets.clients`, otherwise both from the whole pool; the lowest free address is picked and network/broadcast addresses are skipped. Removing a peer frees its address. An explicit `-ip` is validated against the pool (`-force` overrides).
+
+---
+
 # Adding and removing configurations
 
 Aside from the `bootstrap` and `generate` commands, there are 3 more commands currently available:
@@ -73,6 +109,40 @@ Reformats the input config yaml file and outputs to stdout.
 ### `recreate`
 
 This command recreates all keys (private and public) in the yaml file. For safety reasons outputs to stdout.
+
+### `pool`
+
+Shows the configured IP pool, subnets, which addresses are used by which peer, and how many are free. Addresses are allocated automatically when `settings.ipPool` is set (see above), so `wg-manage add -name X` needs no `-ip`.
+
+### `psk`
+
+Manages preshared keys: `wg-manage psk -mode status` (default) shows the current state, `-mode single` sets one global `presharedKey`, `-mode per-peer` gives every peer its own `presharedKey` under `peerSection`, `-mode remove` clears all. `bootstrap -preshared single|per-peer` and `init -preshared none|single|per-peer` do the same at creation time. A peer-level key overrides the global one in generated `[Peer]` blocks.
+
+### `tui`
+
+Interactive terminal UI — no manual YAML editing needed:
+
+```
+wg-manage tui -config config.yaml
+```
+
+Tabs: **Peers** (list with server/client badges; `a` add — address auto-allocated from the pool, `e` edit all fields, `d` delete, `r` toggle NAT/routing on a server using `settings.serverDefaults.egressInterface`, `o` edit per-peer override lines by target peer *name*), **Settings** (view pool/subnets/defaults; `a` adds a default `settings` section to an existing config that lacks one), plus `g` generate, `s` save, `q` quit (asks to save unsaved changes). All edits go through the same model/IPAM code as the CLI commands.
+
+### `viz`
+
+Visualizes the network described by the config file:
+
+```
+wg-manage viz                          # ASCII diagram to stdout
+wg-manage viz -format dot | dot -Tsvg > network.svg
+wg-manage viz -format mermaid          # paste into any Mermaid renderer
+```
+
+Shows servers (peers with an endpoint) on top, clients below, key fingerprints, per-peer override counts, and free addresses from the pool.
+
+### Server listen port
+
+Servers get `ListenPort` automatically: `bootstrap -port 443` (also rewrites the endpoint port), `add -server -endpoint host:port` (port taken from the endpoint), or `settings.serverDefaults.listenPort`. An explicit `add -port` wins over both.
 
 ---
 

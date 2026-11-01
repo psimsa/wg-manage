@@ -1,0 +1,99 @@
+name: Web (wasm/PWA)
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+on:
+  push:
+    paths:
+      - 'wasm/**'
+      - 'web/**'
+      - 'models/**'
+      - 'viz/**'
+      - 'wg/**'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/wasm.yml'
+      - 'scripts/build-wasm.sh'
+  workflow_dispatch:
+
+jobs:
+  test-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Run wasm API tests under Node
+        run: |
+          GOOS=js GOARCH=wasm go test -c -o /tmp/wasm-tests.wasm ./wasm/
+          cat > /tmp/run-wasm-tests.js <<'EOF'
+          const fs = require('fs');
+          require(process.env.GOROOT_WASM + '/wasm_exec.js');
+          (async () => {
+            const go = new Go();
+            go.exit = (code) => process.exit(code);
+            const bytes = fs.readFileSync('/tmp/wasm-tests.wasm');
+            const result = await WebAssembly.instantiate(bytes, go.importObject);
+            go.run(result.instance);
+            setTimeout(() => process.exit(0), 60000);
+          })();
+          EOF
+          GOROOT_WASM="$(go env GOROOT)/lib/wasm" node /tmp/run-wasm-tests.js
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test-wasm
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+
+      - name: Build wasm + PWA assets
+        run: scripts/build-wasm.sh
+
+      - name: Upload PWA artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: wg-manage-web
+          path: web/dist/*
+
+  deploy-pages:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download PWA artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: wg-manage-web
+          path: web/dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
