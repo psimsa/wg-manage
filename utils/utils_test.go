@@ -11,10 +11,10 @@ func TestWriteItemIfAny(t *testing.T) {
 	i := 42
 	b := true
 	cases := []struct {
-		name  string
-		item  interface{}
-		key   string
-		want  string
+		name string
+		item interface{}
+		key  string
+		want string
 	}{
 		{"string", s, "Key", "Key=value\n"},
 		{"string ptr", &s, "Key", "Key=value\n"},

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -69,7 +68,7 @@ func (g Generate) PrintHelp() {
 }
 
 func getQrCode(file string) {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	utils.HandleError(err, "Can not open file")
 	qrCode, err := qr.Encode(string(content), qr.M, qr.Auto)
 	utils.HandleError(err, "can not generate qr code")

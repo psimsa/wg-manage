@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"sort"
 
 	"gopkg.in/yaml.v2"
@@ -69,7 +69,7 @@ func GetYaml(configuration Configuration) []byte {
 
 func LoadYaml(configFile string) Configuration {
 	cfg := Configuration{}
-	data, err := ioutil.ReadFile(configFile)
+	data, err := os.ReadFile(configFile)
 	utils.HandleError(err, "could not open yaml file")
 	err = yaml.Unmarshal(data, &cfg)
 	utils.HandleError(err, "could not parse yaml file")
