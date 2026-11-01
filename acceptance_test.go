@@ -47,6 +47,7 @@ func run(t *testing.T, dir string, args ...string) string {
 func assertGolden(t *testing.T, name, got string) {
 	t.Helper()
 	got = normalize(got)
+	got = regexp.MustCompile(`\[[A-Za-z0-9+/]{8}\]`).ReplaceAllString(got, "[KEY8]")
 	path := filepath.Join("testdata", "acceptance", name)
 	if os.Getenv("UPDATE_GOLDEN") != "" {
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
@@ -401,6 +402,26 @@ func TestAcceptanceAddServerWithPort(t *testing.T) {
 	}
 	if !strings.Contains(data, "endpoint: vpn2.example.com:443") {
 		t.Errorf("endpoint should keep its own port:\n%s", data)
+	}
+}
+
+func TestAcceptanceViz(t *testing.T) {
+	dir := t.TempDir()
+	run(t, dir, "bootstrap", "-endpoint", "vpn.example.com:51820")
+	out := run(t, dir, "viz")
+	assertGolden(t, "viz_ascii.txt.golden", out)
+	for _, want := range []string{"[SERVER] Server", "[client] My Laptop", "[client] My Phone", "pool 10.0.2.0/24", "free addresses:"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("viz output missing %q:\n%s", want, out)
+		}
+	}
+	dot := run(t, dir, "viz", "-format", "dot")
+	if !strings.Contains(dot, "digraph wg {") || !strings.Contains(dot, `"My_Laptop" -> "Server";`) {
+		t.Errorf("dot output unexpected:\n%s", dot)
+	}
+	mm := run(t, dir, "viz", "-format", "mermaid")
+	if !strings.Contains(mm, "graph TD") {
+		t.Errorf("mermaid output unexpected:\n%s", mm)
 	}
 }
 

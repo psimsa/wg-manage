@@ -15,6 +15,7 @@ import (
 	"github.com/ofcoursedude/wg-manage/cmd/recreate"
 	"github.com/ofcoursedude/wg-manage/cmd/remove"
 	"github.com/ofcoursedude/wg-manage/cmd/tui"
+	"github.com/ofcoursedude/wg-manage/cmd/viz"
 )
 
 var availableCommands []Command
@@ -31,6 +32,7 @@ func main() {
 		pool.Pool{},
 		psk.Psk{},
 		tui.Tui{},
+		viz.Viz{},
 	}
 
 	if len(os.Args) < 2 {

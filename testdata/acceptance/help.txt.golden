@@ -30,3 +30,6 @@ wg-manage is a command line tool to centrally organize your wireguard configurat
 [tui | t] -config {config.yaml}
 	Interactive terminal UI: manage peers, routing, overrides and settings without editing yaml
 	Example: wg-manage tui
+[viz | v] -config {config.yaml} -format {ascii|dot|mermaid}
+	Visualizes the configured wireguard network (servers, clients, overrides, free addresses)
+	Example: wg-manage v -format dot | dot -Tsvg > network.svg
