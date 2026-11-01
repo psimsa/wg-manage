@@ -115,9 +115,18 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case tabPeers:
 		return m.handlePeersKey(key)
 	case tabSettings:
-		if key == "left" || key == "right" || key == "tab" {
+		switch key {
+		case "left", "right", "tab":
 			m.tab = tabPeers
 			return m, nil
+		case "a":
+			if m.cfg.Settings == nil {
+				m.cfg.Settings = models.DefaultSettings()
+				m.dirty = true
+				m.statusMsg = "Added default settings section (ipPool " + m.cfg.Settings.IPPool + ")."
+			} else {
+				m.statusMsg = "Settings section already present."
+			}
 		}
 	}
 	return m, nil
@@ -614,7 +623,7 @@ func (m Model) peersView() string {
 func (m Model) settingsView() string {
 	s := m.cfg.Settings
 	if s == nil {
-		return "No settings section. Saving will keep it absent; run 'init -settings' or add one manually.\n"
+		return "No settings section in this config.\nPress 'a' to add a default settings section (ip pool, subnets, defaults).\n"
 	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "ipPool: %s\n", s.IPPool)
@@ -673,7 +682,7 @@ func (m Model) helpLine() string {
 		return "y/enter: confirm  n/esc: cancel"
 	}
 	if m.tab == tabSettings {
-		return "tab/left/right: back to peers  q: quit"
+		return "a: add default settings section (if absent)  tab/left/right: back to peers  s: save  q: quit"
 	}
 	return "a: add  e: edit  d: delete  r: routing on/off (servers)  o: overrides  g: generate  s: save  tab: settings  q: quit"
 }

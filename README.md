@@ -126,7 +126,7 @@ Interactive terminal UI — no manual YAML editing needed:
 wg-manage tui -config config.yaml
 ```
 
-Tabs: **Peers** (list with server/client badges; `a` add — address auto-allocated from the pool, `e` edit all fields, `d` delete, `r` toggle NAT/routing on a server using `settings.serverDefaults.egressInterface`, `o` edit per-peer override lines by target peer *name*), **Settings** (view pool/subnets/defaults), plus `g` generate, `s` save, `q` quit (asks to save unsaved changes). All edits go through the same model/IPAM code as the CLI commands.
+Tabs: **Peers** (list with server/client badges; `a` add — address auto-allocated from the pool, `e` edit all fields, `d` delete, `r` toggle NAT/routing on a server using `settings.serverDefaults.egressInterface`, `o` edit per-peer override lines by target peer *name*), **Settings** (view pool/subnets/defaults; `a` adds a default `settings` section to an existing config that lacks one), plus `g` generate, `s` save, `q` quit (asks to save unsaved changes). All edits go through the same model/IPAM code as the CLI commands.
 
 ### `viz`
 

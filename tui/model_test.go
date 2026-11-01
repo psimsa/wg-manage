@@ -261,6 +261,46 @@ func TestQuitWithUnsavedChangesAsks(t *testing.T) {
 	}
 }
 
+func TestSettingsTabAddsDefaultSettings(t *testing.T) {
+	cfg := models.Configuration{}
+	server := models.NewPeer("Server", "privS", "pubS")
+	ep := "vpn.example.com:51820"
+	server.Endpoint = &ep
+	cfg.Peers = []models.Peer{*server}
+	m := NewModel(&cfg, "test.yaml")
+
+	m = send(m, specialKey(tea.KeyTab))
+	if m.tab != tabSettings {
+		t.Fatal("expected settings tab")
+	}
+	if !strings.Contains(m.View(), "No settings section") {
+		t.Fatalf("expected 'no settings' hint:\n%s", m.View())
+	}
+	m = send(m, key("a"))
+	if m.cfg.Settings == nil {
+		t.Fatal("settings should be created after 'a'")
+	}
+	if m.cfg.Settings.IPPool != models.DefaultIPPool {
+		t.Errorf("ipPool = %q", m.cfg.Settings.IPPool)
+	}
+	if !m.dirty {
+		t.Error("model should be dirty after adding settings")
+	}
+	if !strings.Contains(m.View(), "ipPool: "+models.DefaultIPPool) {
+		t.Errorf("settings view should show ipPool:\n%s", m.View())
+	}
+
+	m2 := testModel(t)
+	m2 = send(m2, specialKey(tea.KeyTab))
+	m2 = send(m2, key("a"))
+	if m2.cfg.Settings.IPPool != models.DefaultIPPool {
+		t.Error("existing settings should be kept, not overwritten")
+	}
+	if !strings.Contains(m2.statusMsg, "already present") {
+		t.Errorf("status = %q", m2.statusMsg)
+	}
+}
+
 func TestTabSwitchAndView(t *testing.T) {
 	m := testModel(t)
 	m = send(m, specialKey(tea.KeyTab))
